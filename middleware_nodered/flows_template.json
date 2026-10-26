@@ -1,0 +1,152 @@
+[
+    {
+        "id": "tab_fire_alarm",
+        "type": "tab",
+        "label": "Hệ Thống Báo Khói Nhóm 12",
+        "disabled": false,
+        "info": "Middleware & Dashboard Đề tài 04 - Hệ thống báo khói cảnh báo sớm"
+    },
+    {
+        "id": "mqtt_broker_hivemq",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Cloud SSL Nhóm 12",
+        "broker": "956cadb3d6604926bcb8c34835ece2f7.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "tls_config_hivemq",
+        "clientid": "NodeRED_Nhom12_Middleware",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "tls_config_hivemq",
+        "type": "tls-config",
+        "name": "TLS HiveMQ",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "956cadb3d6604926bcb8c34835ece2f7.s1.eu.hivemq.cloud",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "mqtt_in_telemetry",
+        "type": "mqtt in",
+        "z": "tab_fire_alarm",
+        "name": "Nhận Telemetry",
+        "topic": "nhom12/baokhoi/telemetry",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "mqtt_broker_hivemq",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 140,
+        "wires": [
+            [
+                "fn_automation_rules",
+                "debug_telemetry"
+            ]
+        ]
+    },
+    {
+        "id": "debug_telemetry",
+        "type": "debug",
+        "z": "tab_fire_alarm",
+        "name": "Log Telemetry",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 420,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "fn_automation_rules",
+        "type": "function",
+        "z": "tab_fire_alarm",
+        "name": "Automation Rule (3 Ngưỡng Khói)",
+        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\n\n// 1. Tự động kích hoạt khi có cháy\nif (ppm > 600 || temp > 55.0) {\n    return [\n        { topic: \"nhom12/baokhoi/cmd\", payload: JSON.stringify({ cmd: \"FAN_ON\" }) },\n        { topic: \"nhom12/baokhoi/cmd\", payload: JSON.stringify({ buzzer: 1 }) },\n        { payload: { event: \"FIRE_ALARM\", smoke: ppm, temp: temp, time: new Date().toISOString() } }\n    ];\n} \n// 2. Tự động trả về an toàn khi hết khói\nelse if (ppm < 300) {\n    return [\n        { topic: \"nhom12/baokhoi/cmd\", payload: JSON.stringify({ cmd: \"AUTO\" }) },\n        { topic: \"nhom12/baokhoi/cmd\", payload: JSON.stringify({ buzzer: 0 }) },\n        { payload: { event: \"SAFE\", smoke: ppm, temp: temp, time: new Date().toISOString() } }\n    ];\n}\nreturn null;",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 200,
+        "wires": [
+            [
+                "mqtt_out_cmd"
+            ],
+            [
+                "mqtt_out_cmd"
+            ],
+            [
+                "debug_event_log"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_cmd",
+        "type": "mqtt out",
+        "z": "tab_fire_alarm",
+        "name": "Gửi Lệnh Xuống ESP32",
+        "topic": "nhom12/baokhoi/cmd",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt_broker_hivemq",
+        "x": 780,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "debug_event_log",
+        "type": "debug",
+        "z": "tab_fire_alarm",
+        "name": "Event Logging",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 260,
+        "wires": []
+    }
+]

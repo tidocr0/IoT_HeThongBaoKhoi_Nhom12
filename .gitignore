@@ -1,0 +1,27 @@
+# .gitignore for IoT ESP32 & Node-RED Project
+
+# PlatformIO build artifacts
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# Build outputs
+*.bin
+*.elf
+*.map
+*.o
+*.d
+*.a
+*.dblite
+*.checksum
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
