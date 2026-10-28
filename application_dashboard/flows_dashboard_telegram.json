@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "Tầng 4: Dashboard & Telegram Bot (Thịnh)",
         "disabled": false,
-        "info": "Giao diện Dashboard và Hệ thống gửi tin nhắn cảnh báo Telegram - Đề tài 04 Nhóm 12"
+        "info": "Dashboard giám sát & cảnh báo cho Đề tài 04 - Hệ thống báo khói cảnh báo sớm."
     },
     {
         "id": "ui_tab_main",
@@ -19,83 +19,83 @@
         "id": "ui_base_config",
         "type": "ui_base",
         "theme": {
-            "name": "theme-dark",
+            "name": "theme-light",
             "lightTheme": {
-                "default": "#0094CE",
-                "baseColor": "#0094CE",
-                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "default": "#0284c7",
+                "baseColor": "#0284c7",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif",
                 "edited": true,
                 "reset": false
             },
             "darkTheme": {
                 "default": "#2d3748",
                 "baseColor": "#0f2a4a",
-                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
-                "edited": true,
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif",
+                "edited": false,
                 "reset": false
             },
             "customTheme": {
-                "name": "Untitled Theme 1",
-                "default": "#4B7930",
-                "baseColor": "#4B7930",
-                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                "name": "LightThemeGroup",
+                "default": "#0284c7",
+                "baseColor": "#0284c7",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif"
             },
             "themeState": {
                 "base-color": {
-                    "default": "#0f2a4a",
-                    "value": "#0f2a4a",
-                    "edited": false
+                    "default": "#0284c7",
+                    "value": "#0284c7",
+                    "edited": true
                 },
                 "page-titlebar-backgroundColor": {
-                    "value": "#0f2a4a",
-                    "edited": false
+                    "value": "#0284c7",
+                    "edited": true
                 },
                 "page-backgroundColor": {
-                    "value": "#1a202c",
-                    "edited": false
+                    "value": "#f8fafc",
+                    "edited": true
                 },
                 "page-sidebar-backgroundColor": {
-                    "value": "#2d3748",
-                    "edited": false
+                    "value": "#ffffff",
+                    "edited": true
                 },
                 "group-textColor": {
-                    "value": "#63b3ed",
-                    "edited": false
+                    "value": "#0f172a",
+                    "edited": true
                 },
                 "group-borderColor": {
-                    "value": "#4a5568",
-                    "edited": false
+                    "value": "#e2e8f0",
+                    "edited": true
                 },
                 "group-backgroundColor": {
-                    "value": "#2d3748",
-                    "edited": false
+                    "value": "#ffffff",
+                    "edited": true
                 },
                 "widget-textColor": {
-                    "value": "#ffffff",
-                    "edited": false
+                    "value": "#1e293b",
+                    "edited": true
                 },
                 "widget-backgroundColor": {
-                    "value": "#0f2a4a",
-                    "edited": false
+                    "value": "#f8fafc",
+                    "edited": true
                 },
                 "widget-borderColor": {
-                    "value": "#4a5568",
-                    "edited": false
+                    "value": "#e2e8f0",
+                    "edited": true
                 },
                 "base-font": {
-                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif"
                 }
             },
             "angularTheme": {
-                "primary": "indigo",
-                "accents": "blue",
+                "primary": "blue",
+                "accents": "light-blue",
                 "warn": "red",
                 "background": "grey",
                 "palette": "light"
             }
         },
         "site": {
-            "name": "Hệ Thống Báo Khói Cảnh Báo Sớm - Nhóm 12 HUIT",
+            "name": "HỆ THỐNG BÁO KHÓI CẢNH BÁO SỚM - NHÓM 12",
             "hideToolbar": "false",
             "allowSwipe": "false",
             "lockMenu": "false",
@@ -114,9 +114,9 @@
         }
     },
     {
-        "id": "ui_grp_monitor",
+        "id": "ui_grp_monitor_smoke",
         "type": "ui_group",
-        "name": "📊 GIÁM SÁT THỜI GIAN THỰC (MQ-2 & DHT22)",
+        "name": "🌫️ CẢM BIẾN KHÍ KHÓI (MQ-2)",
         "tab": "ui_tab_main",
         "order": 1,
         "disp": true,
@@ -124,19 +124,19 @@
         "collapse": false
     },
     {
-        "id": "ui_grp_control",
+        "id": "ui_grp_monitor_env",
         "type": "ui_group",
-        "name": "🎮 ĐIỀU KHIỂN CƠ CẤU CHẤP HÀNH (DOWNLINK)",
+        "name": "🌡️ NHIỆT ĐỘ & ĐỘ ẨM (DHT22)",
         "tab": "ui_tab_main",
         "order": 2,
         "disp": true,
-        "width": "6",
+        "width": "8",
         "collapse": false
     },
     {
-        "id": "ui_grp_telegram",
+        "id": "ui_grp_control_alert",
         "type": "ui_group",
-        "name": "🚨 CẢNH BÁO KHẨN CẤP TELEGRAM BOT",
+        "name": "⚡ ĐIỀU KHIỂN & CẢNH BÁO TELEGRAM",
         "tab": "ui_tab_main",
         "order": 3,
         "disp": true,
@@ -200,7 +200,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 140,
-        "y": 140,
+        "y": 120,
         "wires": [
             [
                 "fn_split_metrics",
@@ -214,18 +214,19 @@
         "z": "tab_dashboard_nhom12",
         "name": "Nhận Alert Khẩn Cấp",
         "topic": "nhom12/baokhoi/alert",
-        "qos": "0",
+        "qos": "1",
         "datatype": "json",
         "broker": "mqtt_broker_shared",
         "nl": false,
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 160,
-        "y": 300,
+        "x": 150,
+        "y": 200,
         "wires": [
             [
-                "fn_telegram_fire_alert"
+                "fn_telegram_fire_alert",
+                "fn_split_metrics"
             ]
         ]
     },
@@ -234,15 +235,15 @@
         "type": "function",
         "z": "tab_dashboard_nhom12",
         "name": "Bóc Tách Dữ Liệu Dashboard",
-        "func": "var data = msg.payload;\nvar msgPpm = { payload: data.smoke_ppm || 0 };\nvar msgTemp = { payload: data.temp || 0, topic: 'Nhiệt độ (°C)' };\nvar msgHum = { payload: data.hum || 0, topic: 'Độ ẩm (%)' };\nvar msgState = { payload: 'Trạng thái: ' + (data.state || 'UNKNOWN') };\n\nreturn [msgPpm, msgTemp, msgHum, msgState];",
-        "outputs": 4,
+        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\nvar hum = data.hum || 0;\n\nvar msgPpm = { payload: ppm };\nvar msgTemp = { payload: temp, topic: 'Nhiệt độ (°C)' };\nvar msgHum = { payload: hum, topic: 'Độ ẩm (%)' };\nvar msgEnvCards = { payload: { temp: temp, hum: hum } };\nvar msgSmokeBadge = { payload: ppm };\n\nreturn [msgPpm, msgTemp, msgHum, msgEnvCards, msgSmokeBadge];\n",
+        "outputs": 5,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 420,
-        "y": 140,
+        "y": 120,
         "wires": [
             [
                 "ui_gauge_smoke"
@@ -254,7 +255,10 @@
                 "ui_chart_env"
             ],
             [
-                "ui_text_status"
+                "ui_template_env_cards"
+            ],
+            [
+                "ui_template_smoke_badge"
             ]
         ]
     },
@@ -263,7 +267,7 @@
         "type": "ui_gauge",
         "z": "tab_dashboard_nhom12",
         "name": "Đồng Hồ Khói (PPM)",
-        "group": "ui_grp_monitor",
+        "group": "ui_grp_monitor_smoke",
         "order": 1,
         "width": 8,
         "height": 5,
@@ -274,33 +278,54 @@
         "min": 0,
         "max": 1000,
         "colors": [
-            "#22c55e",
-            "#eab308",
+            "#10b981",
+            "#f59e0b",
             "#ef4444"
         ],
         "seg1": "300",
         "seg2": "600",
         "diff": false,
         "className": "",
-        "x": 700,
+        "x": 720,
         "y": 80,
         "wires": []
+    },
+    {
+        "id": "ui_template_smoke_badge",
+        "type": "ui_template",
+        "z": "tab_dashboard_nhom12",
+        "group": "ui_grp_monitor_smoke",
+        "name": "Thẻ Trạng Thái Khói",
+        "order": 2,
+        "width": 8,
+        "height": 3,
+        "format": "<div style=\"padding: 10px 14px; border-radius: 10px; border: 1px solid;\"\n     ng-style=\"{\n       'background-color': (msg.payload < 300) ? '#ecfdf5' : ((msg.payload <= 600) ? '#fffbeb' : '#fef2f2'),\n       'border-color': (msg.payload < 300) ? '#a7f3d0' : ((msg.payload <= 600) ? '#fde68a' : '#fecdd3'),\n       'color': (msg.payload < 300) ? '#065f46' : ((msg.payload <= 600) ? '#92400e' : '#991b1b')\n     }\">\n  <div style=\"display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;\">\n    <span style=\"font-weight: 700; font-size: 13px;\">\n      <span ng-if=\"msg.payload < 300\">✅ MÔI TRƯỜNG AN TOÀN</span>\n      <span ng-if=\"msg.payload >= 300 && msg.payload <= 600\">⚠️ CẢNH BÁO: KHÓI TĂNG</span>\n      <span ng-if=\"msg.payload > 600\">🚨 NGUY CƠ HỎA HOẠN!</span>\n    </span>\n    <span style=\"font-weight: 800; font-size: 14px; font-family: monospace;\">{{msg.payload || 0}} PPM</span>\n  </div>\n  <div style=\"font-size: 11px; line-height: 1.4; opacity: 0.95;\">\n    <span ng-if=\"msg.payload < 300\">Nồng độ khói ở mức bình thường (&lt; 300 PPM). Quạt hút ở chế độ chờ.</span>\n    <span ng-if=\"msg.payload >= 300 && msg.payload <= 600\">Phát hiện khí khói tăng bất thường (300 - 600 PPM). Đang theo dõi.</span>\n    <span ng-if=\"msg.payload > 600\">Nồng độ khói vượt ngưỡng (&gt; 600 PPM)! Quạt hút BẬT TỐI ĐA, còi hú và Telegram đã gửi!</span>\n  </div>\n</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 720,
+        "y": 140,
+        "wires": [
+            []
+        ]
     },
     {
         "id": "ui_chart_env",
         "type": "ui_chart",
         "z": "tab_dashboard_nhom12",
         "name": "Biểu Đồ Nhiệt / Ẩm",
-        "group": "ui_grp_monitor",
-        "order": 2,
+        "group": "ui_grp_monitor_env",
+        "order": 1,
         "width": 8,
         "height": 5,
-        "label": "BIẾN THIÊN NHIỆT ĐỘ & ĐỘ ẨM THEO THỜI GIAN",
+        "label": "BIẾN THIÊN NHIỆT ĐỘ & ĐỘ ẨM",
         "chartType": "line",
         "legend": "true",
         "xformat": "HH:mm:ss",
         "interpolate": "linear",
-        "nodata": "Đang chờ dữ liệu DHT22...",
+        "nodata": "Đang chờ dữ liệu cảm biến DHT22...",
         "dot": false,
         "ymin": "0",
         "ymax": "100",
@@ -311,56 +336,56 @@
         "useOneColor": false,
         "useUTC": false,
         "colors": [
-            "#f97316",
-            "#06b6d4",
+            "#ea580c",
+            "#0284c7",
             "#ff7f0e",
             "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
+            "#98df8a"
         ],
         "outputs": 1,
         "useDifferentColor": false,
         "className": "",
-        "x": 700,
-        "y": 140,
+        "x": 720,
+        "y": 200,
         "wires": [
             []
         ]
     },
     {
-        "id": "ui_text_status",
-        "type": "ui_text",
+        "id": "ui_template_env_cards",
+        "type": "ui_template",
         "z": "tab_dashboard_nhom12",
-        "group": "ui_grp_monitor",
-        "order": 3,
+        "group": "ui_grp_monitor_env",
+        "name": "Thẻ Số Đo Nhiệt Ẩm",
+        "order": 2,
         "width": 8,
-        "height": 1,
-        "name": "Text Trạng Thái",
-        "label": "HỆ THỐNG:",
-        "format": "<b>{{msg.payload}}</b>",
-        "layout": "row-spread",
+        "height": 3,
+        "format": "<div style=\"display: grid; grid-template-columns: 1fr 1fr; gap: 8px;\">\n  <div style=\"background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 10px;\">\n    <div style=\"color: #9a3412; font-size: 11px; font-weight: 600;\">🌡️ NHIỆT ĐỘ</div>\n    <div style=\"color: #c2410c; font-size: 20px; font-weight: 800; font-family: monospace; margin: 2px 0;\">\n      {{msg.payload.temp || 0}} <span style=\"font-size: 13px;\">°C</span>\n    </div>\n    <div style=\"color: #ea580c; font-size: 10px;\">An toàn: &lt; 55°C</div>\n  </div>\n\n  <div style=\"background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 10px;\">\n    <div style=\"color: #075985; font-size: 11px; font-weight: 600;\">💧 ĐỘ ẨM KHÍ</div>\n    <div style=\"color: #0284c7; font-size: 20px; font-weight: 800; font-family: monospace; margin: 2px 0;\">\n      {{msg.payload.hum || 0}} <span style=\"font-size: 13px;\">%</span>\n    </div>\n    <div style=\"color: #0ea5e9; font-size: 10px;\">Lý tưởng: 40 - 70%</div>\n  </div>\n</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
         "className": "",
-        "x": 680,
-        "y": 200,
-        "wires": []
+        "x": 720,
+        "y": 260,
+        "wires": [
+            []
+        ]
     },
     {
         "id": "ui_btn_fan_on",
         "type": "ui_button",
         "z": "tab_dashboard_nhom12",
         "name": "Bật Quạt",
-        "group": "ui_grp_control",
+        "group": "ui_grp_control_alert",
         "order": 1,
-        "width": 6,
+        "width": 8,
         "height": 1,
         "passthru": false,
         "label": "🌀 BẬT QUẠT HÚT (MANUAL ON)",
-        "tooltip": "Bật quạt cưỡng bức",
+        "tooltip": "Kích hoạt quạt hút cưỡng bức",
         "color": "#ffffff",
-        "bgcolor": "#16a34a",
+        "bgcolor": "#10b981",
         "className": "",
         "icon": "",
         "payload": "{\"cmd\": \"FAN_ON\"}",
@@ -368,7 +393,7 @@
         "topic": "nhom12/baokhoi/cmd",
         "topicType": "str",
         "x": 160,
-        "y": 420,
+        "y": 380,
         "wires": [
             [
                 "mqtt_out_command_ui"
@@ -380,15 +405,15 @@
         "type": "ui_button",
         "z": "tab_dashboard_nhom12",
         "name": "Tắt Quạt",
-        "group": "ui_grp_control",
+        "group": "ui_grp_control_alert",
         "order": 2,
-        "width": 6,
+        "width": 8,
         "height": 1,
         "passthru": false,
         "label": "⏹️ TẮT QUẠT HÚT (MANUAL OFF)",
-        "tooltip": "Tắt quạt",
+        "tooltip": "Tắt quạt cưỡng bức",
         "color": "#ffffff",
-        "bgcolor": "#dc2626",
+        "bgcolor": "#f43f5e",
         "className": "",
         "icon": "",
         "payload": "{\"cmd\": \"FAN_OFF\"}",
@@ -396,7 +421,7 @@
         "topic": "nhom12/baokhoi/cmd",
         "topicType": "str",
         "x": 160,
-        "y": 480,
+        "y": 440,
         "wires": [
             [
                 "mqtt_out_command_ui"
@@ -408,13 +433,13 @@
         "type": "ui_button",
         "z": "tab_dashboard_nhom12",
         "name": "Chế Độ Tự Động",
-        "group": "ui_grp_control",
+        "group": "ui_grp_control_alert",
         "order": 3,
-        "width": 6,
+        "width": 8,
         "height": 1,
         "passthru": false,
         "label": "🔄 CHẾ ĐỘ TỰ ĐỘNG (AUTO MODE)",
-        "tooltip": "Nhường quyền cho cảm biến tự động",
+        "tooltip": "Nhường quyền điều khiển theo ngưỡng cảm biến",
         "color": "#ffffff",
         "bgcolor": "#0284c7",
         "className": "",
@@ -424,11 +449,82 @@
         "topic": "nhom12/baokhoi/cmd",
         "topicType": "str",
         "x": 170,
-        "y": 540,
+        "y": 500,
         "wires": [
             [
                 "mqtt_out_command_ui"
             ]
+        ]
+    },
+    {
+        "id": "ui_btn_test_web",
+        "type": "ui_button",
+        "z": "tab_dashboard_nhom12",
+        "name": "Test Báo Cháy Web",
+        "group": "ui_grp_control_alert",
+        "order": 4,
+        "width": 8,
+        "height": 1,
+        "passthru": false,
+        "label": "🧪 TEST BÁO CHÁY & GỬI TELEGRAM (750 PPM)",
+        "tooltip": "Bấm để giả lập cháy 750 PPM ngay trên Web",
+        "color": "#ffffff",
+        "bgcolor": "#8b5cf6",
+        "className": "",
+        "icon": "",
+        "payload": "{\"smoke_ppm\": 750, \"temp\": 58.5, \"hum\": 45.0, \"state\": \"DANGER\"}",
+        "payloadType": "json",
+        "topic": "",
+        "topicType": "str",
+        "x": 190,
+        "y": 560,
+        "wires": [
+            [
+                "fn_split_metrics",
+                "fn_telegram_fire_alert"
+            ]
+        ]
+    },
+    {
+        "id": "ui_template_alert_log",
+        "type": "ui_template",
+        "z": "tab_dashboard_nhom12",
+        "group": "ui_grp_control_alert",
+        "name": "Nhật Ký Telegram Gần Nhất",
+        "order": 5,
+        "width": 8,
+        "height": 4,
+        "format": "<div style=\"background-color: #fef2f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 12px; color: #1e293b;\">\n  <div style=\"display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #fee2e2; padding-bottom: 6px; margin-bottom: 8px;\">\n    <span style=\"font-weight: 700; color: #dc2626; font-size: 12px; display: flex; align-items: center; gap: 6px;\">\n      <span style=\"display: inline-block; width: 8px; height: 8px; background-color: #dc2626; border-radius: 50%;\"></span>\n      NHẬT KÝ TELEGRAM GẦN NHẤT\n    </span>\n    <span style=\"background-color: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 700;\">\n      {{msg.payload.state || 'DANGER'}}\n    </span>\n  </div>\n\n  <div style=\"font-size: 11.5px; line-height: 1.5; color: #334155;\">\n    <div>🏢 <b>Khu vực:</b> Trạm Báo Khói Nhóm 12 (Đề tài 04)</div>\n    <div>⚠️ <b>Nồng độ khói:</b> <span style=\"color: #dc2626; font-weight: 700;\">{{msg.payload.smoke_ppm || 750}} PPM</span> (&gt; 600 PPM)</div>\n    <div>🌡️ <b>Nhiệt / Ẩm:</b> <b>{{msg.payload.temp || 58.5}} °C</b> | <b>{{msg.payload.hum || 45.0}} %</b></div>\n    <div>🌀 <b>Cơ cấu:</b> Quạt hút ĐÃ BẬT TỐI ĐA | Còi ĐANG HÚ</div>\n    <div style=\"margin-top: 6px; padding-top: 6px; border-top: 1px dashed #fecdd3; color: #64748b; font-size: 10.5px;\">\n      📱 Bot: <b>@BaoKhoiCanhBao_bot</b> &rarr; Trưởng nhóm: <b>Lục Xuân Thịnh</b>\n    </div>\n  </div>\n</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 750,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_template_global_style",
+        "type": "ui_template",
+        "z": "tab_dashboard_nhom12",
+        "group": "ui_grp_control_alert",
+        "name": "CSS Tùy Biến Giao Diện Sáng",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n  body, .md-subhead, .md-title, .md-headline {\n    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif !important;\n  }\n  #main, ui-card-panel, .nr-dashboard-theme {\n    background-color: #f8fafc !important;\n  }\n  md-toolbar.site-title {\n    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;\n    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2) !important;\n  }\n  .nr-dashboard-cardpanel {\n    background: #ffffff !important;\n    border-radius: 12px !important;\n    border: 1px solid #e2e8f0 !important;\n    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;\n    padding: 12px !important;\n    margin: 6px !important;\n  }\n  .nr-dashboard-cardtitle {\n    font-size: 14px !important;\n    font-weight: 700 !important;\n    color: #0f172a !important;\n    border-bottom: 2px solid #f1f5f9 !important;\n    padding-bottom: 6px !important;\n    margin-bottom: 10px !important;\n  }\n  md-button.nr-dashboard-button {\n    border-radius: 8px !important;\n    font-weight: 600 !important;\n    text-transform: none !important;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;\n    transition: all 0.15s ease-in-out !important;\n  }\n</style>\n",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": false,
+        "templateScope": "global",
+        "className": "",
+        "x": 750,
+        "y": 480,
+        "wires": [
+            []
         ]
     },
     {
@@ -437,16 +533,16 @@
         "z": "tab_dashboard_nhom12",
         "name": "Bắn Lệnh Xuống ESP32",
         "topic": "nhom12/baokhoi/cmd",
-        "qos": "0",
-        "retain": "false",
+        "qos": "1",
+        "retain": "",
         "respTopic": "",
         "contentType": "",
         "userProps": "",
         "correl": "",
         "expiry": "",
         "broker": "mqtt_broker_shared",
-        "x": 480,
-        "y": 480,
+        "x": 450,
+        "y": 460,
         "wires": []
     },
     {
@@ -454,7 +550,7 @@
         "type": "function",
         "z": "tab_dashboard_nhom12",
         "name": "Kiểm Tra Ngưỡng Bắn Telegram",
-        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\n\n// Chống spam: chỉ gửi tối đa 1 tin mỗi 60 giây nếu cháy liên tục\nvar lastAlert = context.get('lastAlertTime') || 0;\nvar now = Date.now();\n\nif ((ppm > 600 || temp > 55.0) && (now - lastAlert > 60000)) {\n    context.set('lastAlertTime', now);\n    return msg;\n}\nreturn null;",
+        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\n\nvar lastAlert = context.get('lastAlertTime') || 0;\nvar now = Date.now();\n\nif ((ppm > 600 || temp > 55.0) && (now - lastAlert > 60000)) {\n    context.set('lastAlertTime', now);\n    return msg;\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -462,7 +558,7 @@
         "finalize": "",
         "libs": [],
         "x": 430,
-        "y": 240,
+        "y": 200,
         "wires": [
             [
                 "fn_telegram_fire_alert"
@@ -474,18 +570,20 @@
         "type": "function",
         "z": "tab_dashboard_nhom12",
         "name": "Định Dạng Tin Nhắn Telegram",
-        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\nvar hum = data.hum || 0;\nvar timeStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\n// ĐIỀN CHAT ID CỦA BẠN VÀO DƯỚI ĐÂY:\nvar CHAT_ID = \"YOUR_TELEGRAM_CHAT_ID\"; // Nhập Chat ID của bạn (ví dụ: 6372510382)\n\nvar messageText = \"🚨 <b>[CẢNH BÁO HỎA HOẠN KHẨN CẤP]</b> 🚨\\n\" +\n                  \"🏢 <b>Địa điểm:</b> Trạm Cảm Biến Nhóm 12 (Đề tài 04)\\n\" +\n                  \"⚠️ <b>Nồng độ khói:</b> <code>\" + ppm + \" PPM</code> (Ngưỡng nguy hiểm > 600)\\n\" +\n                  \"🌡️ <b>Nhiệt độ hiện tại:</b> <code>\" + temp + \" °C</code>\\n\" +\n                  \"💧 <b>Độ ẩm môi trường:</b> <code>\" + hum + \" %</code>\\n\" +\n                  \"🌀 <b>Trạng thái:</b> Quạt hút ĐÃ BẬT TỐI ĐA | Còi ĐANG HÚ\\n\" +\n                  \"⏰ <b>Thời gian ghi nhận:</b> \" + timeStr + \"\\n\\n\" +\n                  \"👉 <i>Vui lòng kiểm tra hiện trường ngay lập tức!</i>\";\n\nmsg.payload = {\n    chat_id: CHAT_ID,\n    text: messageText,\n    parse_mode: \"HTML\"\n};\nreturn msg;",
-        "outputs": 1,
+        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\nvar hum = data.hum || 0;\nvar timeStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\nvar CHAT_ID = \"YOUR_TELEGRAM_CHAT_ID\"; // Chat ID cá nhân của Trưởng nhóm Lục Xuân Thịnh\n\nvar messageText = \"🚨 <b>[CẢNH BÁO HỎA HOẠN KHẨN CẤP]</b> 🚨\\n\" +\n                  \"🏢 <b>Địa điểm:</b> Trạm Cảm Biến Nhóm 12 (Đề tài 04)\\n\" +\n                  \"⚠️ <b>Nồng độ khói:</b> <code>\" + ppm + \" PPM</code> (Ngưỡng nguy hiểm > 600)\\n\" +\n                  \"🌡️ <b>Nhiệt độ hiện tại:</b> <code>\" + temp + \" °C</code>\\n\" +\n                  \"💧 <b>Độ ẩm môi trường:</b> <code>\" + hum + \" %</code>\\n\" +\n                  \"🌀 <b>Trạng thái:</b> Quạt hút ĐÃ BẬT TỐI ĐA | Còi ĐANG HÚ\\n\" +\n                  \"⏰ <b>Thời gian ghi nhận:</b> \" + timeStr + \"\\n\\n\" +\n                  \"👉 <i>Vui lòng kiểm tra hiện trường ngay lập tức!</i>\";\n\nvar uiData = {\n    smoke_ppm: ppm,\n    temp: temp,\n    hum: hum,\n    state: \"DANGER\",\n    time: timeStr\n};\n\nreturn [\n    {\n        payload: {\n            chat_id: CHAT_ID,\n            text: messageText,\n            parse_mode: \"HTML\"\n        }\n    },\n    { payload: uiData }\n];\n",
+        "outputs": 2,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 480,
-        "y": 320,
+        "x": 430,
+        "y": 280,
         "wires": [
             [
-                "http_telegram_send",
+                "http_telegram_send"
+            ],
+            [
                 "ui_template_alert_log"
             ]
         ]
@@ -502,19 +600,11 @@
         "tls": "",
         "persist": false,
         "proxy": "",
-        "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            }
-        ],
-        "x": 750,
-        "y": 320,
+        "headers": [],
+        "x": 730,
+        "y": 340,
         "wires": [
             [
                 "debug_telegram_resp"
@@ -534,30 +624,9 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 980,
-        "y": 320,
+        "x": 950,
+        "y": 340,
         "wires": []
-    },
-    {
-        "id": "ui_template_alert_log",
-        "type": "ui_template",
-        "z": "tab_dashboard_nhom12",
-        "group": "ui_grp_telegram",
-        "name": "Hiển Thị Lịch Sử Cảnh Báo",
-        "order": 1,
-        "width": 8,
-        "height": 4,
-        "format": "<div style=\"background-color:#1e293b; color:#f8fafc; padding:12px; border-radius:8px;\">\n  <h4 style=\"color:#f87171; margin-top:0;\">🔔 NHẬT KÝ BÁO ĐỘNG GẦN NHẤT:</h4>\n  <p style=\"font-size:13px; line-height:1.5;\">{{msg.payload.text || 'Chưa ghi nhận cảnh báo cháy.'}}</p>\n</div>",
-        "storeOutMessages": true,
-        "fwdInMessages": true,
-        "resendOnRefresh": true,
-        "templateScope": "local",
-        "className": "",
-        "x": 770,
-        "y": 380,
-        "wires": [
-            []
-        ]
     },
     {
         "id": "inject_test_fire",
@@ -577,7 +646,7 @@
         "payload": "{\"smoke_ppm\": 750, \"temp\": 58.5, \"hum\": 45.0, \"state\": \"DANGER\"}",
         "payloadType": "json",
         "x": 230,
-        "y": 240,
+        "y": 40,
         "wires": [
             [
                 "fn_telegram_fire_alert",
