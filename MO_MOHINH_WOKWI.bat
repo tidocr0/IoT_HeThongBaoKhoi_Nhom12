@@ -1,12 +1,16 @@
 @echo off
 chcp 65001 > nul
-title MO MO HINH WOKWI ESP32 - NHOM 12
+title MO DU AN TRONG ANTIGRAVITY IDE - NHOM 12
 echo =====================================================================
-echo    ĐANG MỞ MÔ HÌNH MẠCH ĐIỆN WOKWI TRONG VISUAL STUDIO CODE...
+echo    ĐANG MỞ DỰ ÁN VÀ CODE TRONG ANTIGRAVITY IDE...
+echo    (Nơi có sẵn AI Assistant đồng hành cùng bạn 24/7)
 echo =====================================================================
 echo.
-echo Khi màn hình VS Code hiện lên:
-echo 1. Nhìn vào file diagram.json vừa mở.
-echo 2. Bấm nút Play (tam giác xanh lá) ở thanh Wokwi để chạy mô phỏng!
-echo.
-code "%~dp0firmware_esp32" "%~dp0firmware_esp32\diagram.json"
+
+set ANTIGRAVITY_EXE=C:\Users\ADMIN\AppData\Local\Programs\antigravity\Antigravity.exe
+
+if exist "%ANTIGRAVITY_EXE%" (
+    start "" "%ANTIGRAVITY_EXE%" "%~dp0" "%~dp0firmware_esp32\diagram.json"
+) else (
+    explorer "%~dp0"
+)
