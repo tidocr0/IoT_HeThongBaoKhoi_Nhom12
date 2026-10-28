@@ -272,7 +272,7 @@
         "width": 8,
         "height": 5,
         "gtype": "gage",
-        "title": "NỒNG ĐỘ KHÓI MQ-2",
+        "title": "NỒNG ĐỘ KHÓI HIỆN TẠI (MQ-2)",
         "label": "PPM",
         "format": "{{value}}",
         "min": 0,
@@ -396,7 +396,8 @@
         "y": 380,
         "wires": [
             [
-                "mqtt_out_command_ui"
+                "mqtt_out_command_ui",
+                "fn_button_feedback"
             ]
         ]
     },
@@ -424,7 +425,8 @@
         "y": 440,
         "wires": [
             [
-                "mqtt_out_command_ui"
+                "mqtt_out_command_ui",
+                "fn_button_feedback"
             ]
         ]
     },
@@ -452,7 +454,8 @@
         "y": 500,
         "wires": [
             [
-                "mqtt_out_command_ui"
+                "mqtt_out_command_ui",
+                "fn_button_feedback"
             ]
         ]
     },
@@ -481,8 +484,50 @@
         "wires": [
             [
                 "fn_split_metrics",
-                "fn_telegram_fire_alert"
+                "fn_telegram_fire_alert",
+                "fn_button_feedback"
             ]
+        ]
+    },
+    {
+        "id": "fn_button_feedback",
+        "type": "function",
+        "z": "tab_dashboard_nhom12",
+        "name": "Xử Lý Phản Hồi Nút Bấm",
+        "func": "var p = msg.payload;\nif (p.cmd === \"FAN_ON\") {\n    msg.payload = {\n        fan: \"QUẠT ĐÃ BẬT (ON)\",\n        mode: \"Thủ công (Manual ON)\",\n        color: \"#059669\",\n        bg: \"#ecfdf5\",\n        border: \"#a7f3d0\",\n        icon: \"🌀\",\n        desc: \"✅ Đã gửi lệnh [FAN_ON] xuống ESP32 qua topic nhom12/baokhoi/cmd. Quạt hút đang quay tối đa!\"\n    };\n} else if (p.cmd === \"FAN_OFF\") {\n    msg.payload = {\n        fan: \"QUẠT ĐÃ TẮT (OFF)\",\n        mode: \"Thủ công (Manual OFF)\",\n        color: \"#e11d48\",\n        bg: \"#fff1f2\",\n        border: \"#fecdd3\",\n        icon: \"⏹️\",\n        desc: \"✅ Đã gửi lệnh [FAN_OFF] xuống ESP32 qua topic nhom12/baokhoi/cmd. Quạt hút đã dừng.\"\n    };\n} else if (p.cmd === \"AUTO\") {\n    msg.payload = {\n        fan: \"CHẾ ĐỘ TỰ ĐỘNG (AUTO)\",\n        mode: \"Tự động (Auto Mode)\",\n        color: \"#0284c7\",\n        bg: \"#f0f9ff\",\n        border: \"#bae6fd\",\n        icon: \"🔄\",\n        desc: \"✅ Đã gửi lệnh [AUTO] xuống ESP32. Hệ thống tự động kích hoạt quạt và còi khi khói > 600 PPM.\"\n    };\n} else if (p.state === \"DANGER\") {\n    msg.payload = {\n        fan: \"QUẠT BẬT TỐI ĐA (CHÁY KHẨN CẤP)\",\n        mode: \"Giả lập khẩn cấp (Test 750 PPM)\",\n        color: \"#dc2626\",\n        bg: \"#fef2f2\",\n        border: \"#fecdd3\",\n        icon: \"🚨\",\n        desc: \"🔥 CẢNH BÁO: Đã kích hoạt kịch bản cháy khẩn cấp 750 PPM. Quạt BẬT, Còi HÚ và đã bắn tin Telegram!\"\n    };\n}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 440,
+        "wires": [
+            [
+                "ui_template_fan_status"
+            ]
+        ]
+    },
+    {
+        "id": "ui_template_fan_status",
+        "type": "ui_template",
+        "z": "tab_dashboard_nhom12",
+        "group": "ui_grp_control_alert",
+        "name": "Bảng Trạng Thái Quạt & Chế Độ",
+        "order": 5,
+        "width": 8,
+        "height": 2,
+        "format": "<div style=\"padding: 10px 14px; border-radius: 10px; border: 1px solid; margin-top: 2px;\"\n     ng-style=\"{\n       'background-color': msg.payload.bg || '#f0f9ff',\n       'border-color': msg.payload.border || '#bae6fd',\n       'color': msg.payload.color || '#0284c7'\n     }\">\n  <div style=\"display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;\">\n    <span style=\"font-weight: 700; font-size: 13px;\">\n      {{msg.payload.icon || '🔄'}} TRẠNG THÁI: {{msg.payload.fan || 'TỰ ĐỘNG (AUTO)'}}\n    </span>\n    <span style=\"font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background-color: rgba(255,255,255,0.85); box-shadow: 0 1px 2px rgba(0,0,0,0.05);\">\n      {{msg.payload.mode || 'Chế độ Tự Động'}}\n    </span>\n  </div>\n  <div style=\"font-size: 11.5px; line-height: 1.4; opacity: 0.95;\">\n    {{msg.payload.desc || 'Hệ thống đang chạy chế độ tự động. Quạt sẽ tự quay và còi sẽ hú khi nồng độ khói vượt 600 PPM.'}}\n  </div>\n</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 750,
+        "y": 480,
+        "wires": [
+            []
         ]
     },
     {
@@ -491,7 +536,7 @@
         "z": "tab_dashboard_nhom12",
         "group": "ui_grp_control_alert",
         "name": "Nhật Ký Telegram Gần Nhất",
-        "order": 5,
+        "order": 6,
         "width": 8,
         "height": 4,
         "format": "<div style=\"background-color: #fef2f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 12px; color: #1e293b;\">\n  <div style=\"display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #fee2e2; padding-bottom: 6px; margin-bottom: 8px;\">\n    <span style=\"font-weight: 700; color: #dc2626; font-size: 12px; display: flex; align-items: center; gap: 6px;\">\n      <span style=\"display: inline-block; width: 8px; height: 8px; background-color: #dc2626; border-radius: 50%;\"></span>\n      NHẬT KÝ TELEGRAM GẦN NHẤT\n    </span>\n    <span style=\"background-color: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 700;\">\n      {{msg.payload.state || 'DANGER'}}\n    </span>\n  </div>\n\n  <div style=\"font-size: 11.5px; line-height: 1.5; color: #334155;\">\n    <div>🏢 <b>Khu vực:</b> Trạm Báo Khói Nhóm 12 (Đề tài 04)</div>\n    <div>⚠️ <b>Nồng độ khói:</b> <span style=\"color: #dc2626; font-weight: 700;\">{{msg.payload.smoke_ppm || 750}} PPM</span> (&gt; 600 PPM)</div>\n    <div>🌡️ <b>Nhiệt / Ẩm:</b> <b>{{msg.payload.temp || 58.5}} °C</b> | <b>{{msg.payload.hum || 45.0}} %</b></div>\n    <div>🌀 <b>Cơ cấu:</b> Quạt hút ĐÃ BẬT TỐI ĐA | Còi ĐANG HÚ</div>\n    <div style=\"margin-top: 6px; padding-top: 6px; border-top: 1px dashed #fecdd3; color: #64748b; font-size: 10.5px;\">\n      📱 Bot: <b>@BaoKhoiCanhBao_bot</b> &rarr; Trưởng nhóm: <b>Lục Xuân Thịnh</b>\n    </div>\n  </div>\n</div>\n",
@@ -501,7 +546,7 @@
         "templateScope": "local",
         "className": "",
         "x": 750,
-        "y": 420,
+        "y": 540,
         "wires": [
             []
         ]
@@ -512,7 +557,7 @@
         "z": "tab_dashboard_nhom12",
         "group": "ui_grp_control_alert",
         "name": "CSS Tùy Biến Giao Diện Sáng",
-        "order": 6,
+        "order": 7,
         "width": 0,
         "height": 0,
         "format": "<style>\n  body, .md-subhead, .md-title, .md-headline {\n    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif !important;\n  }\n  #main, ui-card-panel, .nr-dashboard-theme {\n    background-color: #f8fafc !important;\n  }\n  md-toolbar.site-title {\n    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;\n    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2) !important;\n  }\n  .nr-dashboard-cardpanel {\n    background: #ffffff !important;\n    border-radius: 12px !important;\n    border: 1px solid #e2e8f0 !important;\n    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;\n    padding: 12px !important;\n    margin: 6px !important;\n  }\n  .nr-dashboard-cardtitle {\n    font-size: 14px !important;\n    font-weight: 700 !important;\n    color: #0f172a !important;\n    border-bottom: 2px solid #f1f5f9 !important;\n    padding-bottom: 6px !important;\n    margin-bottom: 10px !important;\n  }\n  md-button.nr-dashboard-button {\n    border-radius: 8px !important;\n    font-weight: 600 !important;\n    text-transform: none !important;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;\n    transition: all 0.15s ease-in-out !important;\n  }\n</style>\n",
@@ -522,7 +567,7 @@
         "templateScope": "global",
         "className": "",
         "x": 750,
-        "y": 480,
+        "y": 600,
         "wires": [
             []
         ]
@@ -542,7 +587,7 @@
         "expiry": "",
         "broker": "mqtt_broker_shared",
         "x": 450,
-        "y": 460,
+        "y": 380,
         "wires": []
     },
     {
@@ -650,7 +695,8 @@
         "wires": [
             [
                 "fn_telegram_fire_alert",
-                "fn_split_metrics"
+                "fn_split_metrics",
+                "fn_button_feedback"
             ]
         ]
     }
