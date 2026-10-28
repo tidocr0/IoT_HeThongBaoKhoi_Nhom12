@@ -3,7 +3,7 @@
 
 > **Trường Đại học Công Thương TP.HCM (HUIT)**  
 > **Khoa Công nghệ Thông tin - Bộ môn Kỹ thuật Mạng & IoT**  
-> **Giảng viên hướng dẫn:** Thầy Bộ môn IoT  
+> **Giảng viên hướng dẫn:** Thầy Võ Hoàng Hải
 > **Tiêu chuẩn đồ án:** 10 tuần / Tối thiểu 60 giờ mỗi sinh viên / Đáp ứng trọn vẹn Rubric 100 điểm.
 
 ---
