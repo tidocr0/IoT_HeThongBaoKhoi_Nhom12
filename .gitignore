@@ -26,5 +26,8 @@
 Thumbs.db
 desktop.ini
 
+# Sensitive and local run files
 *.local.json
+*.local*.json
+*_cred.json
 
