@@ -1,0 +1,8 @@
+﻿ThoiGian,SuKien,Nguon,Khoi_PPM,NhietDo_C,DoAm_Pct,HanhDong
+"16:29:46 14/11/2026",SYSTEM_ONLINE_SAFE,"Rule Engine",140,28,64,"Kết nối ổn định ở mức An toàn (SAFE)"
+"16:29:46 14/11/2026",FIRE_ALARM_URGENT,"ESP32 Alert Topic",780,60.5,44,"Nhận gói Alert khẩn cấp (<1s) -> Bắn Telegram"
+"16:29:47 14/11/2026",WARNING_HIGH_SMOKE,"Rule Engine",445,36.2,55,"Khói tăng -> Tự bật quạt tản khói (AUTO)"
+"16:29:51 14/11/2026",MANUAL_FAN_ON,"Dashboard RBAC",0,0,0,"Người dùng BẬT Quạt thủ công (Giữ Override)"
+"16:29:53 14/11/2026",AUTH_DENIED_VIEWER,"Dashboard RBAC",0,0,0,"Từ chối thao tác ở quyền Viewer (Chỉ xem)"
+"16:29:55 14/11/2026",SET_AUTO_MODE,"Dashboard RBAC",0,0,0,"Người dùng trả về Chế độ Tự động (AUTO)"
+"16:30:07 14/11/2026",OFFLINE_TIMEOUT,"Watchdog >20s",0,0,0,"Cảnh báo mất kết nối ESP32 quá 20 giây"

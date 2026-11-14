@@ -240,8 +240,8 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("\n=============================================");
-  Serial.println("   HE THONG BAO KHOI NHOM 12 - TUAN 4        ");
-  Serial.println("   TICH HOP HIVEMQ SSL (8883) & 3 LED        ");
+  Serial.println("   HE THONG BAO KHOI NHOM 12 - DE TAI 04    ");
+  Serial.println("   HIVEMQ SSL (8883) • 3 LED • FULL 4 TANG   ");
   Serial.println("=============================================");
 
   dht.begin();
