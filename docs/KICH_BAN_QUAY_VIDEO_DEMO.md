@@ -9,7 +9,7 @@
 
 ### 1. Bật đúng 3 cửa sổ và xếp gọn lên 1 màn hình:
 1. **Cửa sổ Trái (40% màn hình):** Mô phỏng ESP32:
-   * *Cách 1 (Khuyên dùng cho Wokwi Web):* Mở Project Wokwi công khai trên trình duyệt -> bấm nút **Start Simulation (Tam giác xanh)**, kéo gọn phần **Serial Monitor** ở dưới để thấy chữ in ra.
+   * *Cách 1 (Khuyên dùng cho Wokwi Web):* Mở Project Wokwi công khai trên trình duyệt tại **[https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825)** -> bấm nút **Start Simulation (Tam giác xanh)**, kéo gọn phần **Serial Monitor** ở dưới để thấy chữ in ra.
    * *Cách 2 (Dự phòng cực nhanh hoặc test phụ):* Double-click file **`CHAY_GIA_LAP_ESP32.bat`** ở thư mục gốc repo.
 2. **Cửa sổ Phải (60% màn hình):** Node-RED Dashboard:
    * Double-click file **`CHAY_DASHBOARD.bat`** ở thư mục gốc repo (tự khởi động cả **Tầng 3 Middleware** + **Tầng 4 Dashboard** + ghi **CSV Log**).

@@ -10,6 +10,7 @@
 * **MSSV:** 2001230313
 * **Vai trò trong nhóm:** SV1 – Kỹ sư Tầng 1: Sensing / Embedded
 * **Kho lưu trữ GitHub:** [IoT_HeThongBaoKhoi_Nhom12](https://github.com/tidocr0/IoT_HeThongBaoKhoi_Nhom12)
+* **Link Mô phỏng Wokwi Công khai (Checklist #7):** [https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825)
 * **Khối lượng công việc tích lũy:** ≥ 60 giờ (Tuần 1 – Tuần 6)
 
 ---
@@ -18,7 +19,7 @@
 
 | STT | Hạng mục Rubric | Yêu cầu chuẩn theo Syllabus | Sản phẩm bàn giao của SV1 (Evidence) | Trạng thái |
 | :---: | :--- | :--- | :--- | :---: |
-| 1 | **Simulation & Embedded** (20đ) | Mô phỏng Wokwi đầy đủ cảm biến & cơ cấu chấp hành; mạch điện nối đúng nguyên lý; firmware thể hiện đúng bài toán. | Project Wokwi hoàn chỉnh ([firmware_esp32/diagram.json](../firmware_esp32/diagram.json)) với ESP32, MQ-2 (ADC34), DHT22 (GPIO15), Relay quạt (GPIO18), Còi Buzzer (GPIO19) và hệ thống 3 LED chỉ thị (Xanh GPIO25, Vàng GPIO26, Đỏ GPIO27). | **ĐẠT 100%** |
+| 1 | **Simulation & Embedded** (20đ) | Mô phỏng Wokwi đầy đủ cảm biến & cơ cấu chấp hành; mạch điện nối đúng nguyên lý; firmware thể hiện đúng bài toán. | Project Wokwi công khai ([https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825) & [firmware_esp32/diagram.json](../firmware_esp32/diagram.json)) với ESP32, MQ-2 (ADC34), DHT22 (GPIO15), Relay quạt (GPIO18), Còi Buzzer (GPIO19) và hệ thống 3 LED chỉ thị (Xanh GPIO25, Vàng GPIO26, Đỏ GPIO27). | **ĐẠT 100%** |
 | 2 | **Lọc nhiễu tín hiệu cảm biến** | Không dùng giá trị đo thô; phải có giải thuật xử lý tín hiệu. | Thuật toán **Lọc trung bình trượt (Moving Average Filter)** với $N=5$ mẫu trong hàm `docVaLocKhoi()`, loại bỏ hoàn toàn các gai nhiễu điện áp analog trước khi ánh xạ sang thang đo $0 - 1000\text{ PPM}$. | **ĐẠT 100%** |
 | 3 | **Máy trạng thái FSM & Automation** (20đ) | Phân cấp kịch bản rõ ràng (SAFE, WARNING, DANGER); xử lý logic tự động, không chỉ bật/tắt thủ công. | Máy trạng thái FSM 3 mức chuẩn xác: <br>• **SAFE (< 300 PPM, temp $\le 55^\circ\text{C}$):** Sáng LED Xanh, Quạt tắt, Còi tắt.<br>• **WARNING (300 - 600 PPM):** Sáng LED Vàng, Relay tự kích Quạt hút khói.<br>• **DANGER (> 600 PPM hoặc temp > $55^\circ\text{C}$):** Sáng LED Đỏ, Quạt chạy tối đa, Còi hú $1000\text{Hz}$ liên tục. | **ĐẠT 100%** |
 | 4 | **Bố trí không gian thực tế** (Layout) | Sơ đồ lắp đặt vật lý thực tế ngoài đời để chuẩn bị cho giai đoạn Hardware thật. | Bản vẽ phối cảnh 3D Isometric tiếng Việt ([docs/Ban_ve_Bo_tri_Layout_Thuc_te.jpg](Ban_ve_Bo_tri_Layout_Thuc_te.jpg)) định vị chuẩn xác: Cảm biến MQ-2 trần bếp, DHT22 tường 1.5m, Quạt hút cửa sổ, Còi cửa thoát hiểm, Tủ ESP32. | **ĐẠT 100%** |

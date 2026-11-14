@@ -16,6 +16,8 @@
 | 2 | **Châu Phát Lộc** | **2001230469** | **Kỹ sư Tầng 2 & 3 • SV2** | Cấu hình HiveMQ SSL 8883, Middleware Edge-Trigger, Watchdog Timeout >20s & CSV Event Logging |
 | 3 | **Tăng Gia Huy** | **2001230313** | **Kỹ sư Tầng 1 • SV1** | Mô phỏng Wokwi ESP32, Cảm biến MQ-2, DHT22, Lọc N=5, FSM 3 LED, Quạt, Còi & Layout thực tế |
 
+🔗 **Link Mô phỏng Wokwi Công khai (Tầng 1 – Checklist #7):** **[https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825)**
+
 ---
 
 ## 🏛️ KIẾN TRÚC 4 TẦNG IOT HAI CHIỀU CHUẨN MỰC
@@ -79,7 +81,7 @@ git pull origin main
 *(Tùy chọn Telegram thật trên máy cá nhân: vào tab Tầng 4 trên `http://localhost:1880` thay `CHAT_ID` và `<YOUR_TELEGRAM_BOT_TOKEN>` trong file `.local.json` — file này được `.gitignore` ẩn an toàn, không lộ lên Git).*
 
 ### Bước 3: Chạy Mô phỏng Thiết bị ESP32 (Tầng 1)
-* **Cách A — Wokwi Web (Chính thức):** Lên `https://wokwi.com` tạo project ESP32, dán `firmware_esp32/src/main.cpp`, `firmware_esp32/diagram.json` và 4 thư viện trong `firmware_esp32/libraries.txt` rồi bấm Start.
+* **Cách A — Wokwi Web (Chính thức):** Mở trực tiếp link công khai **[https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825)** rồi bấm nút **Start Simulation (Tam giác xanh)** *(hoặc tạo project từ `firmware_esp32/src/main.cpp`, `firmware_esp32/diagram.json` và `firmware_esp32/libraries.txt`)*.
 * **Cách B — Giả lập ESP32 Python đa máy:** Double-click **[CHAY_GIA_LAP_ESP32.bat](CHAY_GIA_LAP_ESP32.bat)** (tự cài `paho-mqtt` nếu thiếu) và nhấn phím `1`, `2`, `3`, `4`, `p` để thử mọi kịch bản.
 
 ---
