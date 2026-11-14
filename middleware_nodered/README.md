@@ -1,5 +1,5 @@
 # TẦNG 3: MIDDLEWARE / AUTOMATION ENGINE (NODE-RED)
-**Phụ trách chính:** Châu Phát Lộc (SV2)
+**Phụ trách chính:** Châu Phát Lộc (MSSV: 2001230469 - SV2)
 
 ## Nhiệm vụ & Xử lý Logic Thực (Không chỉ Forward thô):
 1. **Tiếp nhận 2 luồng Uplink qua HiveMQ SSL 8883:**

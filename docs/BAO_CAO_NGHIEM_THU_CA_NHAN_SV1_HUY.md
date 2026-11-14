@@ -7,6 +7,7 @@
 
 ### THÔNG TIN SINH VIÊN
 * **Họ và tên:** Tăng Gia Huy
+* **MSSV:** 2001230313
 * **Vai trò trong nhóm:** SV1 – Kỹ sư Tầng 1: Sensing / Embedded
 * **Kho lưu trữ GitHub:** [IoT_HeThongBaoKhoi_Nhom12](https://github.com/tidocr0/IoT_HeThongBaoKhoi_Nhom12)
 * **Khối lượng công việc tích lũy:** ≥ 60 giờ (Tuần 1 – Tuần 6)

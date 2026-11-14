@@ -13,10 +13,8 @@
 | STT | Họ và Tên | MSSV | Vai trò chính | Nhiệm vụ đảm trách |
 | :---: | :--- | :---: | :--- | :--- |
 | 1 | **Lục Xuân Thịnh** | **2001230931** | **Trưởng nhóm (Lead) • SV3** | Kiến trúc hệ thống, Tầng 4 (Dashboard Light Theme, RBAC & Telegram Bot), Tích hợp E2E & Tài liệu |
-| 2 | **Châu Phát Lộc** | **200123...** | **Kỹ sư Tầng 2 & 3 • SV2** | Cấu hình HiveMQ SSL 8883, Middleware Edge-Trigger, Watchdog Timeout >20s & CSV Event Logging |
-| 3 | **Tăng Gia Huy** | **200123...** | **Kỹ sư Tầng 1 • SV1** | Mô phỏng Wokwi ESP32, Cảm biến MQ-2, DHT22, Lọc N=5, FSM 3 LED, Quạt, Còi & Layout thực tế |
-
-*(MSSV của SV1 & SV2 sẽ cập nhật ngay khi hai thành viên xác nhận bổ sung).*
+| 2 | **Châu Phát Lộc** | **2001230469** | **Kỹ sư Tầng 2 & 3 • SV2** | Cấu hình HiveMQ SSL 8883, Middleware Edge-Trigger, Watchdog Timeout >20s & CSV Event Logging |
+| 3 | **Tăng Gia Huy** | **2001230313** | **Kỹ sư Tầng 1 • SV1** | Mô phỏng Wokwi ESP32, Cảm biến MQ-2, DHT22, Lọc N=5, FSM 3 LED, Quạt, Còi & Layout thực tế |
 
 ---
 

@@ -1,5 +1,5 @@
 # TẦNG 4: APPLICATION / DASHBOARD, RBAC & TELEGRAM BOT
-**Phụ trách chính:** Lục Xuân Thịnh (SV3 - Trưởng nhóm)
+**Phụ trách chính:** Lục Xuân Thịnh (MSSV: 2001230931 - SV3 - Trưởng nhóm)
 
 ## Tính năng chính:
 1. **Node-RED Dashboard Light Theme (`http://localhost:1880/ui`):**

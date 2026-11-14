@@ -6,7 +6,8 @@
 ---
 
 ### THÔNG TIN SINH VIÊN
-* **Họ và tên:** Châu Phát Lộc *(MSSV: 200123... — bổ sung sau)*
+* **Họ và tên:** Châu Phát Lộc
+* **MSSV:** 2001230469
 * **Vai trò trong nhóm:** SV2 – Kỹ sư Tầng 2 & 3: Network / Connectivity & Middleware Engine
 * **Kho lưu trữ GitHub:** [IoT_HeThongBaoKhoi_Nhom12](https://github.com/tidocr0/IoT_HeThongBaoKhoi_Nhom12)
 * **Khối lượng công việc tích lũy:** ≥ 60 giờ (Tuần 1 – Tuần 8)
