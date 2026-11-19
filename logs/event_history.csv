@@ -21,3 +21,4 @@
 "20:42:25 19/11/2026",OFFLINE_TIMEOUT,"Watchdog >20s",0,0,0,"Cảnh báo mất kết nối ESP32 quá 20 giây"
 "20:42:38 19/11/2026",SYSTEM_ONLINE_SAFE,"Rule Engine",120,28,65,"Kết nối ổn định ở mức An toàn (SAFE)"
 "20:42:38 19/11/2026",DEVICE_RECONNECTED,"Watchdog",120,28,65,"ESP32 kết nối lại thành công"
+"20:42:58 19/11/2026",OFFLINE_TIMEOUT,"Watchdog >20s",0,0,0,"Cảnh báo mất kết nối ESP32 quá 20 giây"
