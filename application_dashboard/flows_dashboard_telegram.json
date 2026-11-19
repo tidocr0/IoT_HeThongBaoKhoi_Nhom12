@@ -203,8 +203,7 @@
         "y": 120,
         "wires": [
             [
-                "fn_split_metrics",
-                "fn_telegram_check"
+                "fn_validate_and_watchdog"
             ]
         ]
     },
@@ -396,8 +395,7 @@
         "y": 380,
         "wires": [
             [
-                "mqtt_out_command_ui",
-                "fn_button_feedback"
+                "fn_rbac_gate"
             ]
         ]
     },
@@ -425,8 +423,7 @@
         "y": 440,
         "wires": [
             [
-                "mqtt_out_command_ui",
-                "fn_button_feedback"
+                "fn_rbac_gate"
             ]
         ]
     },
@@ -454,8 +451,7 @@
         "y": 500,
         "wires": [
             [
-                "mqtt_out_command_ui",
-                "fn_button_feedback"
+                "fn_rbac_gate"
             ]
         ]
     },
@@ -595,8 +591,8 @@
         "type": "function",
         "z": "tab_dashboard_nhom12",
         "name": "Kiểm Tra Ngưỡng Bắn Telegram",
-        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\n\nvar lastAlert = context.get('lastAlertTime') || 0;\nvar now = Date.now();\n\nif ((ppm > 600 || temp > 55.0) && (now - lastAlert > 60000)) {\n    context.set('lastAlertTime', now);\n    return msg;\n}\nreturn null;",
-        "outputs": 1,
+        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\n\nvar isDanger = (ppm > 600 || temp > 55.0);\nvar isSafe = (ppm < 300 && temp <= 55.0);\nvar isWarning = (ppm >= 300 && ppm <= 600 && temp <= 55.0);\n\nvar lastAlertState = context.get('lastAlertState') || 'SAFE';\n\n// Edge-Trigger 1: Chuyển sang DANGER -> Bắn đúng 1 tin khẩn cấp, không lặp lại mỗi 5s\nif (isDanger && lastAlertState !== 'DANGER') {\n    context.set('lastAlertState', 'DANGER');\n    msg.alertType = 'FIRE_ALARM';\n    var csvDanger = {\n        eventCode: \"FIRE_ALARM_URGENT\",\n        smoke: ppm,\n        temp: temp,\n        hum: data.hum || 0,\n        fan: 1,\n        buzzer: 1,\n        role: \"System\",\n        desc: \"Rule 3 kich hoat: Khoi > 600 PPM hoac Nhiet > 55°C, he thong bao chay khan cap\"\n    };\n    return [msg, { payload: csvDanger }];\n}\n\n// Edge-Trigger 2: Chuyển sang WARNING\nif (isWarning && lastAlertState === 'SAFE') {\n    context.set('lastAlertState', 'WARNING');\n    var csvWarning = {\n        eventCode: \"WARNING_HIGH_SMOKE\",\n        smoke: ppm,\n        temp: temp,\n        hum: data.hum || 0,\n        fan: 1,\n        buzzer: 0,\n        role: \"System\",\n        desc: \"Rule 2 kich hoat: Khoi tu 300-600 PPM, tu dong bat quat hut, coi tat\"\n    };\n    return [null, { payload: csvWarning }];\n}\n\n// Edge-Trigger 3: Chuyển về SAFE sau sự cố -> Bắn thông báo an toàn\nif (isSafe && lastAlertState !== 'SAFE') {\n    context.set('lastAlertState', 'SAFE');\n    msg.alertType = 'SAFE_RECOVERY';\n    var csvSafeRec = {\n        eventCode: \"SYSTEM_ONLINE_SAFE\",\n        smoke: ppm,\n        temp: temp,\n        hum: data.hum || 0,\n        fan: 0,\n        buzzer: 0,\n        role: \"System\",\n        desc: \"Moi truong an toan tro lai, khoi ha duoi 300 PPM, tat coi & quat\"\n    };\n    return [msg, { payload: csvSafeRec }];\n}\n\nreturn null;\n",
+        "outputs": 2,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
@@ -607,6 +603,9 @@
         "wires": [
             [
                 "fn_telegram_fire_alert"
+            ],
+            [
+                "fn_csv_logger"
             ]
         ]
     },
@@ -615,7 +614,7 @@
         "type": "function",
         "z": "tab_dashboard_nhom12",
         "name": "Định Dạng Tin Nhắn Telegram",
-        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\nvar hum = data.hum || 0;\nvar timeStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\nvar CHAT_ID = \"YOUR_TELEGRAM_CHAT_ID\"; // Chat ID cá nhân của Trưởng nhóm Lục Xuân Thịnh\n\nvar messageText = \"🚨 <b>[CẢNH BÁO HỎA HOẠN KHẨN CẤP]</b> 🚨\\n\" +\n                  \"🏢 <b>Địa điểm:</b> Trạm Cảm Biến Nhóm 12 (Đề tài 04)\\n\" +\n                  \"⚠️ <b>Nồng độ khói:</b> <code>\" + ppm + \" PPM</code> (Ngưỡng nguy hiểm > 600)\\n\" +\n                  \"🌡️ <b>Nhiệt độ hiện tại:</b> <code>\" + temp + \" °C</code>\\n\" +\n                  \"💧 <b>Độ ẩm môi trường:</b> <code>\" + hum + \" %</code>\\n\" +\n                  \"🌀 <b>Trạng thái:</b> Quạt hút ĐÃ BẬT TỐI ĐA | Còi ĐANG HÚ\\n\" +\n                  \"⏰ <b>Thời gian ghi nhận:</b> \" + timeStr + \"\\n\\n\" +\n                  \"👉 <i>Vui lòng kiểm tra hiện trường ngay lập tức!</i>\";\n\nvar uiData = {\n    smoke_ppm: ppm,\n    temp: temp,\n    hum: hum,\n    state: \"DANGER\",\n    time: timeStr\n};\n\nreturn [\n    {\n        payload: {\n            chat_id: CHAT_ID,\n            text: messageText,\n            parse_mode: \"HTML\"\n        }\n    },\n    { payload: uiData }\n];\n",
+        "func": "var data = msg.payload;\nvar ppm = data.smoke_ppm || 0;\nvar temp = data.temp || 0;\nvar hum = data.hum || 0;\nvar timeStr = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });\n\nvar CHAT_ID = \"YOUR_TELEGRAM_CHAT_ID\";\n\nvar messageText = \"\";\nvar stateBadge = \"DANGER\";\n\nif (msg.alertType === \"SAFE_RECOVERY\") {\n    stateBadge = \"SAFE\";\n    messageText = \"✅ <b>[THÔNG BÁO MÔI TRƯỜNG ĐÃ AN TOÀN]</b> ✅\\n\" +\n                  \"🏢 <b>Địa điểm:</b> Trạm Cảm Biến Nhóm 12 (Đề tài 04)\\n\" +\n                  \"🌿 <b>Nồng độ khói:</b> <code>\" + ppm + \" PPM</code> (Dưới ngưỡng 300 PPM)\\n\" +\n                  \"🌡️ <b>Nhiệt độ hiện tại:</b> <code>\" + temp + \" °C</code>\\n\" +\n                  \"💧 <b>Độ ẩm môi trường:</b> <code>\" + hum + \" %</code>\\n\" +\n                  \"🌀 <b>Trạng thái:</b> Quạt và Còi đã ngắt an toàn.\\n\" +\n                  \"⏰ <b>Thời gian ghi nhận:</b> \" + timeStr + \"\\n\\n\" +\n                  \"👉 <i>Hệ thống đã phục hồi trạng thái bình thường.</i>\";\n} else if (data.alert === \"OFFLINE_TIMEOUT\") {\n    stateBadge = \"OFFLINE\";\n    messageText = \"⚠️ <b>[CẢNH BÁO MẤT KẾT NỐI THIẾT BỊ]</b> ⚠️\\n\" +\n                  \"🏢 <b>Địa điểm:</b> Trạm Cảm Biến Nhóm 12 (Đề tài 04)\\n\" +\n                  \"🔴 <b>Trạng thái:</b> ESP32 MẤT KẾT NỐI QUÁ 20 GIÂY!\\n\" +\n                  \"⏰ <b>Thời gian phát hiện:</b> \" + timeStr + \"\\n\\n\" +\n                  \"👉 <i>Vui lòng kiểm tra nguồn điện và kết nối Wi-Fi của thiết bị!</i>\";\n} else {\n    stateBadge = \"DANGER\";\n    messageText = \"🚨 <b>[CẢNH BÁO HỎA HOẠN KHẨN CẤP]</b> 🚨\\n\" +\n                  \"🏢 <b>Địa điểm:</b> Trạm Cảm Biến Nhóm 12 (Đề tài 04)\\n\" +\n                  \"⚠️ <b>Nồng độ khói:</b> <code>\" + ppm + \" PPM</code> (Ngưỡng nguy hiểm > 600)\\n\" +\n                  \"🌡️ <b>Nhiệt độ hiện tại:</b> <code>\" + temp + \" °C</code>\\n\" +\n                  \"💧 <b>Độ ẩm môi trường:</b> <code>\" + hum + \" %</code>\\n\" +\n                  \"🌀 <b>Trạng thái:</b> Quạt hút ĐÃ BẬT TỐI ĐA | Còi ĐANG HÚ\\n\" +\n                  \"⏰ <b>Thời gian ghi nhận:</b> \" + timeStr + \"\\n\\n\" +\n                  \"👉 <i>Vui lòng kiểm tra hiện trường ngay lập tức!</i>\";\n}\n\nvar uiData = {\n    smoke_ppm: ppm,\n    temp: temp,\n    hum: hum,\n    state: stateBadge,\n    time: timeStr\n};\n\nreturn [\n    {\n        payload: {\n            chat_id: CHAT_ID,\n            text: messageText,\n            parse_mode: \"HTML\"\n        }\n    },\n    { payload: uiData }\n];\n",
         "outputs": 2,
         "timeout": 0,
         "noerr": 0,
@@ -698,6 +697,200 @@
                 "fn_split_metrics",
                 "fn_button_feedback"
             ]
+        ]
+    },
+    {
+        "id": "fn_validate_and_watchdog",
+        "type": "function",
+        "z": "tab_dashboard_nhom12",
+        "name": "Kiểm Tra Dữ Liệu & Watchdog Timeout (20s)",
+        "func": "// 1. Kiểm tra tính hợp lệ dữ liệu (Anti-crash / Garbage filter)\nvar payload = msg.payload;\nif (!payload || typeof payload !== 'object') {\n    node.warn(\"Dữ liệu telemetry không hợp lệ -> Bỏ qua\");\n    return null;\n}\nif (typeof payload.smoke_ppm !== 'number' || isNaN(payload.smoke_ppm)) {\n    node.warn(\"Lỗi cảm biến / Dữ liệu rác: smoke_ppm không phải number -> Bỏ qua để bảo vệ luồng\");\n    return null;\n}\n\n// 2. Cơ chế Watchdog Timeout (20 giây)\nvar timer = context.get('watchdogTimer');\nif (timer) {\n    clearTimeout(timer);\n}\n\nvar wasOffline = context.get('isOffline') || false;\nif (wasOffline) {\n    context.set('isOffline', false);\n    var recoveryMsg = {\n        online: true,\n        text: \"🟢 ESP32 ĐÃ KẾT NỐI LẠI BÌNH THƯỜNG (ONLINE)\"\n    };\n    var csvSafe = {\n        eventCode: \"SYSTEM_ONLINE_SAFE\",\n        smoke: payload.smoke_ppm,\n        temp: payload.temp || 0,\n        hum: payload.hum || 0,\n        fan: payload.fan || 0,\n        buzzer: payload.buzzer || 0,\n        role: \"System\",\n        desc: \"ESP32 khoi phuc ket noi thanh cong sau mat mang\"\n    };\n    node.send([null, { payload: recoveryMsg }, null, { payload: csvSafe }]);\n}\n\nvar newTimer = setTimeout(function() {\n    context.set('isOffline', true);\n    var timeoutMsg = {\n        online: false,\n        text: \"🔴 MẤT KẾT NỐI (OFFLINE TIMEOUT > 20s)\"\n    };\n    var alertPayload = {\n        alert: \"OFFLINE_TIMEOUT\",\n        smoke_ppm: 0,\n        temp: 0,\n        hum: 0,\n        state: \"OFFLINE\",\n        msg: \"⚠️ CẢNH BÁO MẤT KẾT NỐI! ESP32 không gửi dữ liệu quá 20 giây.\"\n    };\n    var csvTimeout = {\n        eventCode: \"OFFLINE_TIMEOUT\",\n        smoke: 0,\n        temp: 0,\n        hum: 0,\n        fan: 0,\n        buzzer: 0,\n        role: \"System\",\n        desc: \"Watchdog Timeout: ESP32 mat ket noi > 20s, he thong chuyen sang OFFLINE\"\n    };\n    node.send([null, { payload: timeoutMsg }, { payload: alertPayload }, { payload: csvTimeout }]);\n}, 20000);\n\ncontext.set('watchdogTimer', newTimer);\n\n// Output 1: Telemetry hợp lệ -> Bóc tách dữ liệu & Telegram check\n// Output 2: Trạng thái kết nối -> Banner UI\n// Output 3: Cảnh báo khẩn cấp (khi timeout) -> Telegram alert\n// Output 4: Event CSV -> fn_csv_logger\nreturn [{ payload: payload }, { payload: { online: true } }, null, null];\n",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 60,
+        "wires": [
+            [
+                "fn_split_metrics",
+                "fn_telegram_check"
+            ],
+            [
+                "ui_template_conn_status"
+            ],
+            [
+                "fn_telegram_fire_alert"
+            ],
+            [
+                "fn_csv_logger"
+            ]
+        ]
+    },
+    {
+        "id": "ui_template_conn_status",
+        "type": "ui_template",
+        "z": "tab_dashboard_nhom12",
+        "group": "ui_grp_monitor_smoke",
+        "name": "Trạng Thái Kết Nối ESP32 (Watchdog 20s)",
+        "order": 0,
+        "width": 8,
+        "height": 1,
+        "format": "<div style=\"padding: 6px 12px; border-radius: 8px; margin-bottom: 6px; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: space-between;\"\n     ng-style=\"{\n       'background-color': (!msg.payload || msg.payload.online) ? '#ecfdf5' : '#fef2f2',\n       'border': (!msg.payload || msg.payload.online) ? '1px solid #a7f3d0' : '1px solid #fecdd3',\n       'color': (!msg.payload || msg.payload.online) ? '#065f46' : '#991b1b'\n     }\">\n  <span>\n    <span ng-if=\"!msg.payload || msg.payload.online\">🟢 ESP32 KẾT NỐI BÌNH THƯỜNG (ONLINE)</span>\n    <span ng-if=\"msg.payload && !msg.payload.online\">🔴 MẤT KẾT NỐI (OFFLINE TIMEOUT > 20s)</span>\n  </span>\n  <span style=\"font-size: 11px; opacity: 0.85;\">Watchdog 20s</span>\n</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 750,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_dropdown_rbac",
+        "type": "ui_dropdown",
+        "z": "tab_dashboard_nhom12",
+        "name": "Chọn Phân Quyền RBAC",
+        "label": "🔑 Phân quyền tài khoản:",
+        "tooltip": "Chọn quyền để kiểm thử phân quyền RBAC",
+        "group": "ui_grp_control_alert",
+        "order": 0,
+        "width": 8,
+        "height": 1,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "👑 Operator (Toàn quyền điều khiển)",
+                "value": "Operator",
+                "type": "str"
+            },
+            {
+                "label": "👁️ Viewer (Chỉ xem - Bị chặn điều khiển)",
+                "value": "Viewer",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic_rbac",
+        "topicType": "str",
+        "className": "",
+        "x": 170,
+        "y": 320,
+        "wires": [
+            [
+                "fn_set_rbac_role"
+            ]
+        ]
+    },
+    {
+        "id": "fn_set_rbac_role",
+        "type": "function",
+        "z": "tab_dashboard_nhom12",
+        "name": "Lưu Quyền Người Dùng",
+        "func": "var role = msg.payload || \"Operator\";\nglobal.set(\"currentUserRole\", role);\n\nvar toastMsg = {\n    fan: \"ĐÃ CHỌN QUYỀN: \" + role.toUpperCase(),\n    mode: (role === \"Operator\") ? \"Toàn quyền điều khiển\" : \"Chỉ xem (Read-only)\",\n    color: (role === \"Operator\") ? \"#0284c7\" : \"#d97706\",\n    bg: (role === \"Operator\") ? \"#f0f9ff\" : \"#fffbeb\",\n    border: (role === \"Operator\") ? \"#bae6fd\" : \"#fde68a\",\n    icon: (role === \"Operator\") ? \"👑\" : \"👁️\",\n    desc: (role === \"Operator\") ? \"✅ Bạn có toàn quyền bật/tắt quạt và chuyển chế độ tự động.\" : \"⚠️ Quyền Viewer: Bạn chỉ có thể theo dõi, không được phép gửi lệnh điều khiển!\"\n};\nreturn { payload: toastMsg };\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 320,
+        "wires": [
+            [
+                "ui_template_fan_status"
+            ]
+        ]
+    },
+    {
+        "id": "fn_rbac_gate",
+        "type": "function",
+        "z": "tab_dashboard_nhom12",
+        "name": "Kiểm Tra Quyền RBAC (Operator vs Viewer)",
+        "func": "var currentRole = global.get(\"currentUserRole\") || \"Operator\";\nvar p = msg.payload;\nvar cmd = p.cmd || \"UNKNOWN\";\n\nif (currentRole === \"Viewer\") {\n    // CHẶN LỆNH ĐIỀU KHIỂN\n    var denyFeedback = {\n        fan: \"🔒 TỪ CHỐI LỆNH (CHỈ XEM)\",\n        mode: \"Phân quyền Viewer\",\n        color: \"#dc2626\",\n        bg: \"#fef2f2\",\n        border: \"#fecdd3\",\n        icon: \"🚫\",\n        desc: \"⚠️ BẢO MẬT RBAC: Tài khoản hiện tại là Viewer (Chỉ xem). Bạn không có quyền gửi lệnh [\" + cmd + \"] xuống thiết bị!\"\n    };\n    var csvDeny = {\n        eventCode: \"AUTH_DENIED_VIEWER\",\n        smoke: 0,\n        temp: 0,\n        hum: 0,\n        fan: 0,\n        buzzer: 0,\n        role: \"Viewer\",\n        desc: \"Bao mat RBAC: Tu choi lenh [\" + cmd + \"] do nguoi dung chi co quyen Viewer\"\n    };\n    return [null, { payload: denyFeedback }, { payload: csvDeny }];\n}\n\n// OPERATOR: CHO PHÉP THỰC THI LỆNH\nvar eventCode = \"SET_AUTO_MODE\";\nvar desc = \"Operator chuyen he thong ve che do Tu dong (AUTO)\";\nif (cmd === \"FAN_ON\") {\n    eventCode = \"MANUAL_FAN_ON\";\n    desc = \"Dieu khien tay: Operator bat quat hut cuong buc (Manual Override)\";\n} else if (cmd === \"FAN_OFF\") {\n    eventCode = \"MANUAL_FAN_OFF\";\n    desc = \"Dieu khien tay: Operator tat quat hut cuong buc (Manual Override)\";\n}\n\nvar csvAllow = {\n    eventCode: eventCode,\n    smoke: 0,\n    temp: 0,\n    hum: 0,\n    fan: (cmd === \"FAN_ON\") ? 1 : 0,\n    buzzer: 0,\n    role: \"Operator\",\n    desc: desc\n};\n\n// Output 1: Gửi MQTT xuống ESP32\n// Output 2: Phản hồi nút bấm UI\n// Output 3: Ghi log CSV\nreturn [msg, msg, { payload: csvAllow }];\n",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 420,
+        "wires": [
+            [
+                "mqtt_out_command_ui"
+            ],
+            [
+                "fn_button_feedback"
+            ],
+            [
+                "fn_csv_logger"
+            ]
+        ]
+    },
+    {
+        "id": "fn_csv_logger",
+        "type": "function",
+        "z": "tab_dashboard_nhom12",
+        "name": "Bộ Ghi Nhật Ký Lịch Sử Sự Kiện (CSV Logger)",
+        "func": "var item = msg.payload;\nif (!item || !item.eventCode) return null;\n\nvar now = new Date();\nvar pad = function(n) { return (n < 10 ? '0' : '') + n; };\nvar timestamp = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' +\n                pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());\n\nvar csvLine = timestamp + \",\" +\n              item.eventCode + \",\" +\n              (item.smoke || 0) + \",\" +\n              (item.temp || 0) + \",\" +\n              (item.hum || 0) + \",\" +\n              (item.fan || 0) + \",\" +\n              (item.buzzer || 0) + \",\" +\n              (item.role || \"System\") + \",\"\" +\n              (item.desc || \"\").replace(/\"/g, '\"\"') + \"\"\\n\";\n\nvar eventList = context.get('recentEvents') || [];\neventList.unshift({\n    time: pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()),\n    code: item.eventCode,\n    role: item.role || 'System',\n    desc: item.desc || ''\n});\nif (eventList.length > 5) eventList.pop();\ncontext.set('recentEvents', eventList);\n\nreturn [{ payload: csvLine }, { payload: eventList }];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 420,
+        "wires": [
+            [
+                "file_event_logger"
+            ],
+            [
+                "ui_template_event_table"
+            ]
+        ]
+    },
+    {
+        "id": "file_event_logger",
+        "type": "file",
+        "z": "tab_dashboard_nhom12",
+        "name": "Ghi File CSV",
+        "filename": "logs/event_history.csv",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "utf8",
+        "x": 980,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_template_event_table",
+        "type": "ui_template",
+        "z": "tab_dashboard_nhom12",
+        "group": "ui_grp_control_alert",
+        "name": "Bảng Lịch Sử Sự Kiện (CSV Table)",
+        "order": 8,
+        "width": 8,
+        "height": 5,
+        "format": "<div style=\"background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-top: 6px;\">\n  <div style=\"display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; margin-bottom: 6px;\">\n    <span style=\"font-weight: 700; color: #0f172a; font-size: 11.5px; display: flex; align-items: center; gap: 4px;\">\n      📋 LỊCH SỬ SỰ KIỆN AUDIT (CSV)\n    </span>\n    <span style=\"font-size: 10px; color: #64748b; font-weight: 600;\">logs/event_history.csv</span>\n  </div>\n  <table style=\"width: 100%; font-size: 10.5px; border-collapse: collapse; text-align: left;\">\n    <thead>\n      <tr style=\"color: #64748b; border-bottom: 1px solid #e2e8f0;\">\n        <th style=\"padding: 3px;\">Giờ</th>\n        <th style=\"padding: 3px;\">Mã Sự Kiện</th>\n        <th style=\"padding: 3px;\">Quyền</th>\n        <th style=\"padding: 3px;\">Mô tả</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr ng-repeat=\"e in msg.payload track by $index\" style=\"border-bottom: 1px solid #f8fafc;\">\n        <td style=\"padding: 3px; font-family: monospace; color: #64748b;\">{{e.time}}</td>\n        <td style=\"padding: 3px;\">\n          <span style=\"padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 700;\"\n                ng-style=\"{\n                  'background-color': (e.code.includes('FIRE') || e.code.includes('DENIED')) ? '#fee2e2' : (e.code.includes('WARN') || e.code.includes('TIMEOUT') ? '#fef3c7' : '#dcfce7'),\n                  'color': (e.code.includes('FIRE') || e.code.includes('DENIED')) ? '#991b1b' : (e.code.includes('WARN') || e.code.includes('TIMEOUT') ? '#92400e' : '#166534')\n                }\">\n            {{e.code}}\n          </span>\n        </td>\n        <td style=\"padding: 3px; font-weight: 600;\">{{e.role}}</td>\n        <td style=\"padding: 3px; color: #334155; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">{{e.desc}}</td>\n      </tr>\n      <tr ng-if=\"!msg.payload || msg.payload.length === 0\">\n        <td colspan=\"4\" style=\"text-align: center; color: #94a3b8; padding: 10px;\">Chưa có sự kiện mới trong phiên</td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 980,
+        "y": 460,
+        "wires": [
+            []
         ]
     }
 ]

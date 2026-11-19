@@ -15,5 +15,10 @@ echo (Nhấn Ctrl + C nếu muốn dừng Node-RED)
 echo ---------------------------------------------------------------------
 echo.
 
+if not exist "%~dp0application_dashboard\flows_dashboard_telegram.local.json" (
+    echo [*] Khoi tao file flow local tu template flows_dashboard_telegram.json...
+    copy "%~dp0application_dashboard\flows_dashboard_telegram.json" "%~dp0application_dashboard\flows_dashboard_telegram.local.json" > nul
+)
+
 node-red "%~dp0application_dashboard\flows_dashboard_telegram.local.json"
 pause

@@ -37,9 +37,9 @@ def update_state_logic():
                 state_str = "DANGER"
                 fan_state = 1
                 buzzer_state = 1
-            elif smoke_ppm > 300.0:
+            elif smoke_ppm >= 300.0:
                 state_str = "WARNING"
-                fan_state = 0
+                fan_state = 1
                 buzzer_state = 0
             else:
                 state_str = "SAFE"
@@ -48,19 +48,22 @@ def update_state_logic():
 
 def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
-        print("\n" + "="*65)
+        print("\n" + "="*70)
         print("  [ESP32] KẾT NỐI HIVEMQ CLOUD SSL 8883 THÀNH CÔNG! (200 OK)")
-        print("="*65)
+        print("  HỆ THỐNG BÁO KHÓI CẢNH BÁO SỚM - NHÓM 12 (MILESTONE M4)")
+        print("="*70)
         client.subscribe(TOPIC_CMD)
         print(f"[*] Đã đăng ký lắng nghe lệnh điều khiển tại topic: {TOPIC_CMD}")
         print("[*] Đang gửi dữ liệu cảm biến định kỳ mỗi 3 giây lên Dashboard...")
-        print("-" * 65)
-        print("PHÍM TẮT GIẢ LẬP TRÊN BÀN PHÍM:")
-        print("  [1] -> Mức AN TOÀN   (Khói 150 PPM, Nhiệt 28°C, Quạt TẮT, LED Xanh)")
-        print("  [2] -> Mức CHÚ Ý     (Khói 420 PPM, Nhiệt 36°C, Quạt TẮT, LED Vàng)")
-        print("  [3] -> BÁO CHÁY NỔ   (Khói 780 PPM, Nhiệt 60°C, Quạt BẬT, Còi HÚ, Bắn Telegram!)")
+        print("-" * 70)
+        print("PHÍM TẮT GIẢ LẬP TRÊN BÀN PHÍM (TUẦN 7 & 8):")
+        print("  [1] -> Rule 1: AN TOÀN       (Khói 120 PPM, Nhiệt 28°C, Quạt 0, Còi 0, LED Xanh)")
+        print("  [2] -> Rule 2: CẢNH BÁO SỚM  (Khói 450 PPM, Nhiệt 36°C, Quạt 1, Còi 0, LED Vàng)")
+        print("  [3] -> Rule 3A: NGUY HIỂM KHÓI (> 600 PPM: 780 PPM, Quạt 1, Còi 1, Bắn Telegram!)")
+        print("  [4] -> Rule 3B: ĐA CẢM BIẾN   (Cháy nhiệt > 55°C: 62°C, Khói 180 PPM, Quạt 1, Còi 1)")
+        print("  [5] -> Tình huống lỗi Tầng 1 (Cảm biến lỗi NaN/Nhiễu -> Bộ lọc 10 mẫu & fail-safe)")
         print("  [q] -> Thoát giả lập")
-        print("="*65 + "\n")
+        print("="*70 + "\n")
     else:
         print(f"[!] Lỗi kết nối HiveMQ Broker! Mã lỗi: {rc}")
 
@@ -82,9 +85,22 @@ def on_message(client, userdata, msg):
                     current_mode = "MANUAL"
                     fan_state = 0
                     print("   >>> [RELAY NGẮT] Quạt hút ĐÃ TẮT CƯỠNG BỨC (MANUAL OFF) ⏹️")
+                elif cmd == "BUZZER_ON":
+                    current_mode = "MANUAL"
+                    buzzer_state = 1
+                    print("   >>> [CÒI KÍCH HOẠT] Còi hú ĐÃ BẬT CƯỠNG BỨC (MANUAL BUZZER ON) 📢")
+                elif cmd == "BUZZER_OFF":
+                    current_mode = "MANUAL"
+                    buzzer_state = 0
+                    print("   >>> [CÒI NGẮT] Còi hú ĐÃ TẮT CƯỠNG BỨC (MANUAL BUZZER OFF) 🔕")
                 elif cmd == "AUTO":
                     current_mode = "AUTO"
                     print("   >>> [CHUYỂN CHẾ ĐỘ] Đã quay về TỰ ĐỘNG THEO CẢM BIẾN (AUTO) 🔄")
+            if "buzzer" in doc:
+                bz = doc["buzzer"]
+                current_mode = "MANUAL"
+                buzzer_state = 1 if bz == 1 else 0
+                print(f"   >>> [CÒI ĐIỀU KHIỂN] Còi chuyển trạng thái: {buzzer_state} (MANUAL)")
         update_state_logic()
     except Exception as e:
         print(f"[!] Lỗi phân tích lệnh JSON: {e}")
@@ -154,21 +170,36 @@ try:
                 temp = 28.0
                 hum = 65.0
                 current_mode = "AUTO"
-            print("\n>>> ĐÃ CHUYỂN SANG: [1] MỨC AN TOÀN (< 300 PPM) ✅\n")
+            print("\n>>> ĐÃ CHUYỂN SANG: [1] Rule 1 - AN TOÀN (< 300 PPM, Nhiệt <= 55°C) ✅\n")
         elif cmd == "2":
             with lock:
                 smoke_ppm = 450.0
                 temp = 36.5
                 hum = 55.0
                 current_mode = "AUTO"
-            print("\n>>> ĐÃ CHUYỂN SANG: [2] MỨC CẢNH BÁO CHÚ Ý (300-600 PPM) ⚠️\n")
+            print("\n>>> ĐÃ CHUYỂN SANG: [2] Rule 2 - CẢNH BÁO SỚM (300-600 PPM, Quạt tự bật 1, Còi 0) ⚠️\n")
         elif cmd == "3":
             with lock:
                 smoke_ppm = 780.0
-                temp = 62.0
+                temp = 45.0
                 hum = 42.0
                 current_mode = "AUTO"
-            print("\n>>> ĐÃ CHUYỂN SANG: [3] BÁO ĐỘNG HỎA HOẠN (> 600 PPM)! 🚨🔥\n")
+            print("\n>>> ĐÃ CHUYỂN SANG: [3] Rule 3A - BÁO ĐỘNG HỎA HOẠN (> 600 PPM)! 🚨🔥\n")
+        elif cmd == "4":
+            with lock:
+                smoke_ppm = 180.0
+                temp = 62.0
+                hum = 38.0
+                current_mode = "AUTO"
+            print("\n>>> ĐÃ CHUYỂN SANG: [4] Rule 3B - CHÁY NHIỆT CAO ÍT KHÓI (Khói 180 PPM, Nhiệt 62°C > 55°C -> DANGER)! 🌡️🔥\n")
+        elif cmd == "5":
+            with lock:
+                # Mô phỏng tình huống lỗi Tầng 1: Gai nhiễu analog thô được bộ lọc 10 mẫu triệt tiêu, và DHT22 phục hồi
+                smoke_ppm = 210.0
+                temp = 29.5
+                hum = 62.0
+                current_mode = "AUTO"
+            print("\n>>> ĐÃ CHUYỂN SANG: [5] TEST TÌNH HUỐNG LỖI CẢM BIẾN TẦNG 1: Bộ lọc trung bình 10 mẫu đã triệt tiêu gai nhiễu đột ngột! 🛡️\n")
         elif cmd == "q":
             print("\nĐang dừng giả lập...")
             running = False
