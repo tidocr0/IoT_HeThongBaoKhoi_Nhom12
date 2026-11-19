@@ -77,8 +77,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     message += (char)payload[i];
   }
 
-  Serial.println("\n=============================================");
-  Serial.printf("[MQTT DOWNLINK] Nhan lenh dieu khien tu xa: %s\n", message.c_str());
+  Serial.println("\r\n=============================================");
+  Serial.printf("[MQTT DOWNLINK] Nhan lenh dieu khien tu xa: %s\r\n", message.c_str());
 
   if (String(topic) == topic_cmd) {
     JsonDocument doc;
@@ -154,9 +154,9 @@ void reconnect() {
     if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
       Serial.println(" -> THANH CONG!");
       client.subscribe(topic_cmd);
-      Serial.printf("[MQTT] Da subscribe topic dieu khien: %s\n", topic_cmd);
+      Serial.printf("[MQTT] Da subscribe topic dieu khien: %s\r\n", topic_cmd);
     } else {
-      Serial.printf(" That bai! Ma loi rc=%d (Thu lai sau 4s)\n", client.state());
+      Serial.printf(" That bai! Ma loi rc=%d (Thu lai sau 4s)\r\n", client.state());
     }
   }
 }
@@ -179,8 +179,8 @@ void publishAlert(int smokePPM, float temp, float hum) {
   serializeJson(doc, buffer);
 
   client.publish(topic_alert, buffer);
-  Serial.println("\n🚨 [ALERT] DA BAN GOI TIN KHAN CAP LEN TOPIC: nhom12/baokhoi/alert");
-  Serial.printf("🚨 Noi dung: %s\n\n", buffer);
+  Serial.println("\r\n🚨 [ALERT] DA BAN GOI TIN KHAN CAP LEN TOPIC: nhom12/baokhoi/alert");
+  Serial.printf("🚨 Noi dung: %s\r\n\r\n", buffer);
 }
 
 // =========================================================
@@ -383,20 +383,21 @@ void loop() {
 
     if (client.connected()) {
       client.publish(topic_telemetry, telemetryPayload);
-      Serial.println("\n[MQTT UPLINK] Gui goi tin dinh ky (5s):");
-      Serial.printf("Topic  : %s\n", topic_telemetry);
-      Serial.printf("Payload: %s\n", telemetryPayload);
+      Serial.println("\r\n=============================================================");
+      Serial.println("[MQTT UPLINK] Gui goi tin dinh ky (5s):");
+      Serial.printf("Topic  : %s\r\n", topic_telemetry);
+      Serial.printf("Payload: %s\r\n", telemetryPayload);
     } else {
       Serial.println("[MQTT] Chua ket noi duoc Broker HiveMQ, bo qua lan gui nay.");
     }
 
     Serial.println("-------------------------------------------------------------");
-    Serial.printf("[THONG SO] PPM: %4d | Nhiet do: %4.1f *C | Do am: %4.1f %%\n", globalSmokePPM, globalTemp, globalHum);
-    Serial.printf("[HE THONG] Muc: %-7s | Quat: %d (%s) | Coi: %d (%s) | LED: %s\n",
+    Serial.printf("[THONG SO] PPM: %4d | Nhiet do: %4.1f *C | Do am: %4.1f %%\r\n", globalSmokePPM, globalTemp, globalHum);
+    Serial.printf("[HE THONG] Muc: %-7s | Quat: %d (%s) | Coi: %d (%s) | LED: %s\r\n",
                   globalStateStr.c_str(),
                   fanState ? 1 : 0, manualFanOverride ? "Manual" : "Auto",
                   buzzerState ? 1 : 0, manualBuzzerOverride ? "Manual" : "Auto",
                   (currentState == SAFE) ? "XANH" : ((currentState == WARNING) ? "VANG" : "DO"));
-    Serial.println("-------------------------------------------------------------");
+    Serial.println("=============================================================");
   }
 }
