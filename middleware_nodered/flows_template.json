@@ -1,313 +1,358 @@
 [
-    {
-        "id": "tab_middleware_nhom12",
-        "type": "tab",
-        "label": "Tầng 3: Middleware & Automation (Lộc)",
-        "disabled": false,
-        "info": "Tầng 3 Middleware Node-RED (Châu Phát Lộc): Edge-Trigger Automation 3 ngưỡng, chống ghi đè nút Manual, Watchdog Timeout >20s và ghi CSV Event History."
-    },
-    {
-        "id": "mqtt_broker_shared",
-        "type": "mqtt-broker",
-        "name": "HiveMQ SSL 8883 Nhóm 12",
-        "broker": "956cadb3d6604926bcb8c34835ece2f7.s1.eu.hivemq.cloud",
-        "port": "8883",
-        "tls": "tls_config_shared",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": true,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
-    },
-    {
-        "id": "tls_config_shared",
-        "type": "tls-config",
-        "name": "TLS Shared HiveMQ",
-        "cert": "",
-        "key": "",
-        "ca": "",
-        "certname": "",
-        "keyname": "",
-        "caname": "",
-        "servername": "956cadb3d6604926bcb8c34835ece2f7.s1.eu.hivemq.cloud",
-        "verifyservercert": false,
-        "alpnprotocol": ""
-    },
-    {
-        "id": "mw_mqtt_in_telemetry",
-        "type": "mqtt in",
-        "z": "tab_middleware_nhom12",
-        "name": "Nhận Telemetry (5s)",
-        "topic": "nhom12/baokhoi/telemetry",
-        "qos": "0",
-        "datatype": "json",
-        "broker": "mqtt_broker_shared",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 150,
-        "y": 100,
-        "wires": [
-            [
-                "mw_fn_edge_rules",
-                "mw_trigger_watchdog",
-                "mw_fn_mark_online"
-            ]
-        ]
-    },
-    {
-        "id": "mw_mqtt_in_alert",
-        "type": "mqtt in",
-        "z": "tab_middleware_nhom12",
-        "name": "Nhận Alert Khẩn (<1s)",
-        "topic": "nhom12/baokhoi/alert",
-        "qos": "1",
-        "datatype": "json",
-        "broker": "mqtt_broker_shared",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 150,
-        "y": 200,
-        "wires": [
-            [
-                "mw_fn_alert_log",
-                "mw_trigger_watchdog",
-                "mw_fn_mark_online"
-            ]
-        ]
-    },
-    {
-        "id": "mw_fn_edge_rules",
-        "type": "function",
-        "z": "tab_middleware_nhom12",
-        "name": "Rule Engine (Edge-Trigger 3 Ngưỡng)",
-        "func": "var data = msg.payload || {};\nvar ppm = Number(data.smoke_ppm || 0);\nvar temp = Number(data.temp || 0);\nvar hum = Number(data.hum || 0);\nvar prevLevel = flow.get('lastAutoLevel') || 'UNKNOWN';\nvar isManual = flow.get('manualOverride') || false;\n\nvar level = 'SAFE';\nif (ppm > 600 || temp > 55.0) {\n    level = 'DANGER';\n} else if (ppm >= 300) {\n    level = 'WARNING';\n}\n\nif (level === prevLevel) {\n    return null;\n}\n\nflow.set('lastAutoLevel', level);\n\nif (level === 'DANGER') {\n    flow.set('manualOverride', false);\n    return [\n        [\n            { topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ cmd: 'FAN_ON' }) },\n            { topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ buzzer: 1 }) }\n        ],\n        { payload: { event: 'DANGER_AUTO_TRIGGER', source: 'Rule Engine', smoke_ppm: ppm, temp: temp, hum: hum, action: 'Cháy khẩn cấp -> Tự động BẬT Quạt & Còi 1000Hz' } }\n    ];\n} else if (level === 'WARNING') {\n    var cmds = [];\n    if (!isManual) {\n        cmds.push({ topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ cmd: 'AUTO', buzzer: 0 }) });\n    }\n    return [\n        cmds.length ? cmds : null,\n        { payload: { event: 'WARNING_HIGH_SMOKE', source: 'Rule Engine', smoke_ppm: ppm, temp: temp, hum: hum, action: isManual ? 'Khói 300-600 PPM (Giữ Manual)' : 'Khói tăng -> Tự bật quạt tản khói (AUTO)' } }\n    ];\n} else {\n    var safeCmds = [];\n    if (!isManual) {\n        safeCmds.push({ topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ cmd: 'AUTO', buzzer: 0 }) });\n    }\n    var evName = (prevLevel === 'DANGER' || prevLevel === 'WARNING') ? 'RECOVERY_SAFE' : 'SYSTEM_ONLINE_SAFE';\n    var actStr = (evName === 'RECOVERY_SAFE')\n        ? (isManual ? 'Hết khói (Giữ trạng thái Manual)' : 'Hết khói -> Trả chế độ AUTO & Tắt còi')\n        : 'Kết nối ổn định ở mức An toàn (SAFE)';\n    return [\n        safeCmds.length ? safeCmds : null,\n        { payload: { event: evName, source: 'Rule Engine', smoke_ppm: ppm, temp: temp, hum: hum, action: actStr } }\n    ];\n}\n",
-        "outputs": 2,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 470,
-        "y": 100,
-        "wires": [
-            [
-                "mw_mqtt_out_cmd"
-            ],
-            [
-                "mw_fn_format_csv"
-            ]
-        ]
-    },
-    {
-        "id": "mw_mqtt_out_cmd",
-        "type": "mqtt out",
-        "z": "tab_middleware_nhom12",
-        "name": "Gửi Lệnh Tự Động (cmd)",
-        "topic": "nhom12/baokhoi/cmd",
-        "qos": "1",
-        "retain": "false",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "mqtt_broker_shared",
-        "x": 800,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "mw_fn_alert_log",
-        "type": "function",
-        "z": "tab_middleware_nhom12",
-        "name": "Chuẩn Hóa Log Khẩn Cấp",
-        "func": "var d = msg.payload || {};\nreturn {\n    payload: {\n        event: 'FIRE_ALARM_URGENT',\n        source: 'ESP32 Alert Topic',\n        smoke_ppm: Number(d.smoke_ppm || 0),\n        temp: Number(d.temp || 0),\n        hum: Number(d.hum || 0),\n        action: 'Nhận gói Alert khẩn cấp (<1s) -> Bắn Telegram'\n    }\n};\n",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 450,
-        "y": 200,
-        "wires": [
-            [
-                "mw_fn_format_csv"
-            ]
-        ]
-    },
-    {
-        "id": "mw_fn_mark_online",
-        "type": "function",
-        "z": "tab_middleware_nhom12",
-        "name": "Cập Nhật Trạng Thái ONLINE",
-        "func": "var nowStr = new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });\nvar wasOffline = (flow.get('deviceOnline') === false);\nflow.set('deviceOnline', true);\nvar d = msg.payload || {};\nvar statusMsg = { payload: { online: true, lastSeen: nowStr, source: 'HiveMQ SSL 8883' } };\nvar recMsg = wasOffline\n    ? { payload: { event: 'DEVICE_RECONNECTED', source: 'Watchdog', smoke_ppm: Number(d.smoke_ppm || 0), temp: Number(d.temp || 0), hum: Number(d.hum || 0), action: 'ESP32 kết nối lại thành công' } }\n    : null;\nreturn [statusMsg, recMsg];\n",
-        "outputs": 2,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 460,
-        "y": 280,
-        "wires": [
-            [],
-            [
-                "mw_fn_format_csv"
-            ]
-        ]
-    },
-    {
-        "id": "mw_trigger_watchdog",
-        "type": "trigger",
-        "z": "tab_middleware_nhom12",
-        "name": "Watchdog Timeout > 20s",
-        "op1": "",
-        "op1type": "nul",
-        "op2": "{\"event\":\"OFFLINE_TIMEOUT\"}",
-        "op2type": "json",
-        "duration": "20",
-        "extend": true,
-        "overrideDelay": false,
-        "units": "s",
-        "reset": "",
-        "bytopic": "all",
-        "topic": "topic",
-        "outputs": 1,
-        "x": 450,
-        "y": 360,
-        "wires": [
-            [
-                "mw_fn_handle_timeout"
-            ]
-        ]
-    },
-    {
-        "id": "mw_inject_test_timeout",
-        "type": "inject",
-        "z": "tab_middleware_nhom12",
-        "name": "🧪 Test Kịch Bản Offline Timeout",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "test",
-                "v": "true",
-                "vt": "bool"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "{\"event\":\"OFFLINE_TIMEOUT\"}",
-        "payloadType": "json",
-        "x": 170,
-        "y": 380,
-        "wires": [
-            [
-                "mw_fn_handle_timeout"
-            ]
-        ]
-    },
-    {
-        "id": "mw_fn_handle_timeout",
-        "type": "function",
-        "z": "tab_middleware_nhom12",
-        "name": "Xử Lý Sự Cố Mất Kết Nối",
-        "func": "var wasOnline = flow.get('deviceOnline');\nif (wasOnline === false && !msg.test) {\n    return null;\n}\nflow.set('deviceOnline', false);\nvar nowStr = new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });\nvar evMsg = { payload: { event: 'OFFLINE_TIMEOUT', source: 'Watchdog >20s', smoke_ppm: 0, temp: 0, hum: 0, action: 'Cảnh báo mất kết nối ESP32 quá 20 giây' } };\nvar statusMsg = { payload: { online: false, lastSeen: nowStr, source: 'Timeout >20s' } };\nvar tgMsg = { payload: { offline: true, smoke_ppm: 0, temp: 0, hum: 0, time: nowStr } };\nreturn [evMsg, statusMsg, tgMsg];\n",
-        "outputs": 3,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 730,
-        "y": 360,
-        "wires": [
-            [
-                "mw_fn_format_csv"
-            ],
-            [],
-            []
-        ]
-    },
-    {
-        "id": "mw_fn_format_csv",
-        "type": "function",
-        "z": "tab_middleware_nhom12",
-        "name": "Định Dạng Event Log & CSV",
-        "func": "var d = msg.payload || {};\nvar ts = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });\nvar ev = String(d.event || 'EVENT');\nvar src = String(d.source || 'Middleware');\nvar ppm = Number(d.smoke_ppm || 0);\nvar temp = Number(d.temp || 0);\nvar hum = Number(d.hum || 0);\nvar act = String(d.action || '').replace(/\"/g, \"'\");\n\nvar csvLine = '\"' + ts + '\",' + ev + ',\"' + src + '\",' + ppm + ',' + temp + ',' + hum + ',\"' + act + '\"';\n\nvar hist = flow.get('eventHistoryList') || [];\nhist.unshift({\n    time: ts,\n    event: ev,\n    source: src,\n    ppm: ppm,\n    temp: temp,\n    action: act\n});\nif (hist.length > 7) {\n    hist = hist.slice(0, 7);\n}\nflow.set('eventHistoryList', hist);\n\nreturn [\n    { payload: csvLine },\n    { payload: hist }\n];\n",
-        "outputs": 2,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 1030,
-        "y": 200,
-        "wires": [
-            [
-                "mw_file_write_csv",
-                "mw_debug_event_log"
-            ],
-            []
-        ]
-    },
-    {
-        "id": "mw_file_write_csv",
-        "type": "file",
-        "z": "tab_middleware_nhom12",
-        "name": "Ghi File CSV (logs/event_history.csv)",
-        "filename": "logs/event_history.csv",
-        "filenameType": "str",
-        "appendNewline": true,
-        "createDir": true,
-        "overwriteFile": "false",
-        "encoding": "utf8",
-        "x": 1330,
-        "y": 160,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "mw_debug_event_log",
-        "type": "debug",
-        "z": "tab_middleware_nhom12",
-        "name": "Event History Console",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1300,
-        "y": 240,
-        "wires": []
-    }
+  {
+    "id": "tab_middleware_nhom12",
+    "type": "tab",
+    "label": "Tầng 3: Middleware & Automation (Lộc)",
+    "disabled": false,
+    "info": "Tầng 3 Middleware Node-RED (Châu Phát Lộc): Edge-Trigger Automation 3 ngưỡng, chống ghi đè nút Manual, Watchdog Timeout >20s và ghi CSV Event History."
+  },
+  {
+    "id": "mqtt_broker_shared",
+    "type": "mqtt-broker",
+    "name": "HiveMQ SSL 8883 Nhóm 12",
+    "broker": "956cadb3d6604926bcb8c34835ece2f7.s1.eu.hivemq.cloud",
+    "port": "8883",
+    "tls": "tls_config_shared",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": true,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "tls_config_shared",
+    "type": "tls-config",
+    "name": "TLS Shared HiveMQ",
+    "cert": "",
+    "key": "",
+    "ca": "",
+    "certname": "",
+    "keyname": "",
+    "caname": "",
+    "servername": "956cadb3d6604926bcb8c34835ece2f7.s1.eu.hivemq.cloud",
+    "verifyservercert": false,
+    "alpnprotocol": ""
+  },
+  {
+    "id": "mw_mqtt_in_telemetry",
+    "type": "mqtt in",
+    "z": "tab_middleware_nhom12",
+    "name": "Nhận Telemetry (5s)",
+    "topic": "nhom12/baokhoi/telemetry",
+    "qos": "0",
+    "datatype": "json",
+    "broker": "mqtt_broker_shared",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 100,
+    "wires": [
+      [
+        "mw_fn_filter_junk"
+      ]
+    ]
+  },
+  {
+    "id": "mw_mqtt_in_alert",
+    "type": "mqtt in",
+    "z": "tab_middleware_nhom12",
+    "name": "Nhận Alert Khẩn (<1s)",
+    "topic": "nhom12/baokhoi/alert",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "mqtt_broker_shared",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 200,
+    "wires": [
+      [
+        "mw_fn_alert_log",
+        "mw_trigger_watchdog",
+        "mw_fn_mark_online"
+      ]
+    ]
+  },
+  {
+    "id": "mw_fn_edge_rules",
+    "type": "function",
+    "z": "tab_middleware_nhom12",
+    "name": "Rule Engine (Edge-Trigger 3 Ngưỡng)",
+    "func": "var data = msg.payload || {};\nvar ppm = Number(data.smoke_ppm || 0);\nvar temp = Number(data.temp || 0);\nvar hum = Number(data.hum || 0);\nvar prevLevel = flow.get('lastAutoLevel') || 'UNKNOWN';\nvar isManual = flow.get('manualOverride') || false;\n\nvar level = 'SAFE';\nif (ppm > 600 || temp > 55.0) {\n    level = 'DANGER';\n} else if (ppm >= 300) {\n    level = 'WARNING';\n}\n\nif (level === prevLevel) {\n    return null;\n}\n\nflow.set('lastAutoLevel', level);\n\nif (level === 'DANGER') {\n    flow.set('manualOverride', false);\n    return [\n        [\n            { topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ cmd: 'FAN_ON' }) },\n            { topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ buzzer: 1 }) }\n        ],\n        { payload: { event: 'DANGER_AUTO_TRIGGER', source: 'Rule Engine', smoke_ppm: ppm, temp: temp, hum: hum, action: 'Cháy khẩn cấp -> Tự động BẬT Quạt & Còi 1000Hz' } }\n    ];\n} else if (level === 'WARNING') {\n    var cmds = [];\n    if (!isManual) {\n        cmds.push({ topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ cmd: 'AUTO', buzzer: 0 }) });\n    }\n    return [\n        cmds.length ? cmds : null,\n        { payload: { event: 'WARNING_HIGH_SMOKE', source: 'Rule Engine', smoke_ppm: ppm, temp: temp, hum: hum, action: isManual ? 'Khói 300-600 PPM (Giữ Manual)' : 'Khói tăng -> Tự bật quạt tản khói (AUTO)' } }\n    ];\n} else {\n    var safeCmds = [];\n    if (!isManual) {\n        safeCmds.push({ topic: 'nhom12/baokhoi/cmd', payload: JSON.stringify({ cmd: 'AUTO', buzzer: 0 }) });\n    }\n    var evName = (prevLevel === 'DANGER' || prevLevel === 'WARNING') ? 'RECOVERY_SAFE' : 'SYSTEM_ONLINE_SAFE';\n    var actStr = (evName === 'RECOVERY_SAFE')\n        ? (isManual ? 'Hết khói (Giữ trạng thái Manual)' : 'Hết khói -> Trả chế độ AUTO & Tắt còi')\n        : 'Kết nối ổn định ở mức An toàn (SAFE)';\n    return [\n        safeCmds.length ? safeCmds : null,\n        { payload: { event: evName, source: 'Rule Engine', smoke_ppm: ppm, temp: temp, hum: hum, action: actStr } }\n    ];\n}\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 470,
+    "y": 100,
+    "wires": [
+      [
+        "mw_mqtt_out_cmd"
+      ],
+      [
+        "mw_fn_format_csv"
+      ]
+    ]
+  },
+  {
+    "id": "mw_mqtt_out_cmd",
+    "type": "mqtt out",
+    "z": "tab_middleware_nhom12",
+    "name": "Gửi Lệnh Tự Động (cmd)",
+    "topic": "nhom12/baokhoi/cmd",
+    "qos": "1",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker_shared",
+    "x": 800,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "mw_fn_alert_log",
+    "type": "function",
+    "z": "tab_middleware_nhom12",
+    "name": "Chuẩn Hóa Log Khẩn Cấp",
+    "func": "var d = msg.payload || {};\nreturn {\n    payload: {\n        event: 'FIRE_ALARM_URGENT',\n        source: 'ESP32 Alert Topic',\n        smoke_ppm: Number(d.smoke_ppm || 0),\n        temp: Number(d.temp || 0),\n        hum: Number(d.hum || 0),\n        action: 'Nhận gói Alert khẩn cấp (<1s) -> Bắn Telegram'\n    }\n};\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 450,
+    "y": 200,
+    "wires": [
+      [
+        "mw_fn_format_csv"
+      ]
+    ]
+  },
+  {
+    "id": "mw_fn_mark_online",
+    "type": "function",
+    "z": "tab_middleware_nhom12",
+    "name": "Cập Nhật Trạng Thái ONLINE",
+    "func": "var nowStr = new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });\nvar wasOffline = (flow.get('deviceOnline') === false);\nflow.set('deviceOnline', true);\nvar d = msg.payload || {};\nvar statusMsg = { payload: { online: true, lastSeen: nowStr, source: 'HiveMQ SSL 8883' } };\nvar recMsg = wasOffline\n    ? { payload: { event: 'DEVICE_RECONNECTED', source: 'Watchdog', smoke_ppm: Number(d.smoke_ppm || 0), temp: Number(d.temp || 0), hum: Number(d.hum || 0), action: 'ESP32 kết nối lại thành công' } }\n    : null;\nreturn [statusMsg, recMsg];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 460,
+    "y": 280,
+    "wires": [
+      [],
+      [
+        "mw_fn_format_csv"
+      ]
+    ]
+  },
+  {
+    "id": "mw_trigger_watchdog",
+    "type": "trigger",
+    "z": "tab_middleware_nhom12",
+    "name": "Watchdog Timeout > 20s",
+    "op1": "",
+    "op1type": "nul",
+    "op2": "{\"event\":\"OFFLINE_TIMEOUT\"}",
+    "op2type": "json",
+    "duration": "20",
+    "extend": true,
+    "overrideDelay": false,
+    "units": "s",
+    "reset": "",
+    "bytopic": "all",
+    "topic": "topic",
+    "outputs": 1,
+    "x": 450,
+    "y": 360,
+    "wires": [
+      [
+        "mw_fn_handle_timeout"
+      ]
+    ]
+  },
+  {
+    "id": "mw_inject_test_timeout",
+    "type": "inject",
+    "z": "tab_middleware_nhom12",
+    "name": "🧪 Test Kịch Bản Offline Timeout",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "test",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"event\":\"OFFLINE_TIMEOUT\"}",
+    "payloadType": "json",
+    "x": 170,
+    "y": 380,
+    "wires": [
+      [
+        "mw_fn_handle_timeout"
+      ]
+    ]
+  },
+  {
+    "id": "mw_fn_handle_timeout",
+    "type": "function",
+    "z": "tab_middleware_nhom12",
+    "name": "Xử Lý Sự Cố Mất Kết Nối",
+    "func": "var wasOnline = flow.get('deviceOnline');\nif (wasOnline === false && !msg.test) {\n    return null;\n}\nflow.set('deviceOnline', false);\nvar nowStr = new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });\nvar evMsg = { payload: { event: 'OFFLINE_TIMEOUT', source: 'Watchdog >20s', smoke_ppm: 0, temp: 0, hum: 0, action: 'Cảnh báo mất kết nối ESP32 quá 20 giây' } };\nvar statusMsg = { payload: { online: false, lastSeen: nowStr, source: 'Timeout >20s' } };\nvar tgMsg = { payload: { offline: true, smoke_ppm: 0, temp: 0, hum: 0, time: nowStr } };\nreturn [evMsg, statusMsg, tgMsg];\n",
+    "outputs": 3,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 360,
+    "wires": [
+      [
+        "mw_fn_format_csv"
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "id": "mw_fn_format_csv",
+    "type": "function",
+    "z": "tab_middleware_nhom12",
+    "name": "Định Dạng Event Log & CSV",
+    "func": "var d = msg.payload || {};\nvar ts = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });\nvar ev = String(d.event || 'EVENT');\nvar src = String(d.source || 'Middleware');\nvar ppm = Number(d.smoke_ppm || 0);\nvar temp = Number(d.temp || 0);\nvar hum = Number(d.hum || 0);\nvar act = String(d.action || '').replace(/\"/g, \"'\");\n\nvar csvLine = '\"' + ts + '\",' + ev + ',\"' + src + '\",' + ppm + ',' + temp + ',' + hum + ',\"' + act + '\"';\n\nvar hist = flow.get('eventHistoryList') || [];\nhist.unshift({\n    time: ts,\n    event: ev,\n    source: src,\n    ppm: ppm,\n    temp: temp,\n    action: act\n});\nif (hist.length > 7) {\n    hist = hist.slice(0, 7);\n}\nflow.set('eventHistoryList', hist);\n\nreturn [\n    { payload: csvLine },\n    { payload: hist }\n];\n",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1030,
+    "y": 200,
+    "wires": [
+      [
+        "mw_file_write_csv",
+        "mw_debug_event_log"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "mw_file_write_csv",
+    "type": "file",
+    "z": "tab_middleware_nhom12",
+    "name": "Ghi File CSV (logs/event_history.csv)",
+    "filename": "logs/event_history.csv",
+    "filenameType": "str",
+    "appendNewline": true,
+    "createDir": true,
+    "overwriteFile": "false",
+    "encoding": "utf8",
+    "x": 1330,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "mw_debug_event_log",
+    "type": "debug",
+    "z": "tab_middleware_nhom12",
+    "name": "Event History Console",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1300,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "mw_fn_filter_junk",
+    "type": "function",
+    "z": "tab_middleware_nhom12",
+    "name": "Bộ Lọc JSON Hợp Lệ (Loại Bỏ Rác)",
+    "func": "// ====================================================================\n// [TẦNG 3 - MIDDLEWARE] BỘ LỌC DỮ LIỆU HỢP LỆ & LOẠI BỎ DỮ LIỆU RÁC\n// SV2: Châu Phát Lộc - MSSV: 2001230469\n// ====================================================================\n// Kiểm tra kịch bản lỗi #2: Loại bỏ dữ liệu rác, không làm sập luồng.\n// Quy tắc kiểm tra:\n// 1. Payload phải là JSON Object hợp lệ\n// 2. Trường smoke_ppm bắt buộc phải là kiểu số (number)\n// Nếu vi phạm: Huỷ gói tin (return null), không đưa vào Watchdog & Rule Engine.\n\nif (!msg.payload || typeof msg.payload !== 'object') {\n    node.warn('[LỌC DỮ LIỆU RÁC] Loại bỏ gói tin không đúng định dạng JSON: ' + JSON.stringify(msg.payload));\n    return null;\n}\n\nif (typeof msg.payload.smoke_ppm !== 'number' || isNaN(msg.payload.smoke_ppm)) {\n    node.warn('[LỌC DỮ LIỆU RÁC] Loại bỏ gói tin vì smoke_ppm không phải là số (typeof != number): ' + JSON.stringify(msg.payload));\n    return null; // Huỷ bỏ an toàn, bảo vệ toàn bộ luồng không bị sập\n}\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 300,
+    "y": 100,
+    "wires": [
+      [
+        "mw_fn_edge_rules",
+        "mw_trigger_watchdog",
+        "mw_fn_mark_online"
+      ]
+    ]
+  },
+  {
+    "id": "mw_inject_test_junk",
+    "type": "inject",
+    "z": "tab_middleware_nhom12",
+    "name": "🧪 Test Dữ Liệu Rác (Anti-Junk)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"garbage\":\"invalid_junk_data\",\"smoke_ppm\":\"chu_khong_phai_so\"}",
+    "payloadType": "json",
+    "x": 170,
+    "y": 40,
+    "wires": [
+      [
+        "mw_fn_filter_junk"
+      ]
+    ]
+  }
 ]

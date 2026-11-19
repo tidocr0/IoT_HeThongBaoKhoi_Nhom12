@@ -137,7 +137,8 @@ void reconnect() {
   static unsigned long lastReconnectAttempt = 0;
   unsigned long now = millis();
 
-  if (!client.connected() && (now - lastReconnectAttempt > 4000)) {
+  // Chu kỳ tự động thử kết nối lại sau mỗi 5 giây (Reconnect 5s)
+  if (!client.connected() && (now - lastReconnectAttempt > 5000)) {
     lastReconnectAttempt = now;
     Serial.print("[MQTT] Dang ket noi HiveMQ SSL (8883)...");
 
@@ -147,7 +148,7 @@ void reconnect() {
       client.subscribe(topic_cmd);
       Serial.printf("[MQTT] Da subscribe topic dieu khien: %s\n", topic_cmd);
     } else {
-      Serial.printf(" That bai! Ma loi rc=%d (Thu lai sau 4s)\n", client.state());
+      Serial.printf(" That bai! Ma loi rc=%d (Thu lai sau 5s)\n", client.state());
     }
   }
 }

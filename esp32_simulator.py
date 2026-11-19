@@ -67,6 +67,8 @@ def on_connect(client, userdata, flags, rc, properties=None):
         print("  [2] -> WARNING      (Khói 450 PPM, Nhiệt 36.5°C | LED Vàng | Quạt TỰ BẬT)")
         print("  [3] -> DANGER KHÓI  (Khói 780 PPM, Nhiệt 62.0°C | LED Đỏ + Còi + Alert)")
         print("  [4] -> DANGER NHIỆT (Khói 220 PPM, Nhiệt 59.0°C | Cháy không khói > 55°C)")
+        print("  [5] -> DỮ LIỆU RÁC  (Gửi chuỗi sai kiểu smoke_ppm để test bộ lọc Node-RED)")
+        print("  [6] -> MẤT MẠNG 5S  (Ngắt mạng giả lập để test cơ chế reconnect tự động)")
         print("  [p] -> Tạm ngưng/Tiếp tục gửi Telemetry (Test kịch bản Timeout > 20s)")
         print("  [q] -> Thoát giả lập")
         print("=" * 68 + "\n")
@@ -113,6 +115,7 @@ client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=client_id)
 client.username_pw_set(BROKER_USER, BROKER_PASS)
 client.tls_set(cert_reqs=ssl.CERT_NONE)
 client.tls_insecure_set(True)
+client.reconnect_delay_set(min_delay=1, max_delay=5)
 client.on_connect = on_connect
 client.on_message = on_message
 
@@ -245,6 +248,18 @@ try:
                 prev_state_str = "DANGER"
             send_alert_now()
             print("\n>>> [4] BÁO ĐỘNG NHIỆT ĐỘ CAO (220 PPM, 59.0°C > 55°C) 🌡️🚨\n")
+        elif cmd == "5":
+            # Test Tình huống lỗi #2: Gửi dữ liệu rác (typeof msg.payload.smoke_ppm !== 'number')
+            junk_payload = json.dumps({"garbage": "invalid_telemetry", "smoke_ppm": "chu_khong_phai_so", "temp": "err"})
+            client.publish(TOPIC_TELEMETRY, junk_payload, qos=0)
+            print(f"\n>>> [5] ĐÃ BẮN DỮ LIỆU RÁC LÊN TOPIC {TOPIC_TELEMETRY}:")
+            print(f"       Payload: {junk_payload}")
+            print("       -> Bộ lọc Node-RED (typeof != 'number') sẽ loại bỏ an toàn, không làm sập luồng! 🗑️🛡️\n")
+        elif cmd == "6":
+            # Test Tình huống lỗi #2: Thử nghiệm ngắt kết nối MQTT và tự reconnect sau 5s
+            print("\n>>> [6] THỬ NGHIỆM MẤT KẾT NỐI BROKER (Cơ chế reconnect() tự động sau 5s)...")
+            client.disconnect()
+            print("       -> Đã gọi client.disconnect(). Đang chờ cơ chế reconnect() tự phục hồi...\n")
         elif cmd == "p":
             with lock:
                 paused_telemetry = not paused_telemetry
