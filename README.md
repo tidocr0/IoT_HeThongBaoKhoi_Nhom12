@@ -3,8 +3,8 @@
 
 > **Trường Đại học Công Thương TP.HCM (HUIT)**  
 > **Khoa Công nghệ Thông tin - Bộ môn Kỹ thuật Mạng & IoT**  
-> **Giảng viên hướng dẫn:** Thầy Võ Hoàng Hải **
-> **Tiêu chuẩn đồ án:** 10 tuần / Tối thiểu 60 giờ mỗi sinh viên / Đáp ứng trọn vẹn Rubric 100 điểm.
+> **Giảng viên hướng dẫn:** Thầy Võ Hoàng Hải  
+> **Tiêu chuẩn đồ án:** 10 tuần / Tối thiểu 60 giờ mỗi sinh viên / Đáp ứng trọn vẹn Rubric 100 điểm (+5 điểm Bonus Layout/Hardware).
 
 ---
 
@@ -12,43 +12,22 @@
 
 | STT | Họ và Tên | MSSV | Vai trò chính | Nhiệm vụ đảm trách |
 | :---: | :--- | :---: | :--- | :--- |
-| 1 | **Lục Xuân Thịnh** | **2001230931** | **Trưởng nhóm (Lead)** | Kiến trúc hệ thống, Tầng 4 (Dashboard & Telegram Bot), Báo cáo & Quản trị tiến độ |
-| 2 | **Châu Phát Lộc** | **200123...** | **Kỹ sư Tầng 2 & 3** | Cấu hình HiveMQ SSL 8883, Middleware Node-RED, Logic tự động hóa & Event Logging |
-| 3 | **Tăng Gia Huy** | **200123...** | **Kỹ sư Tầng 1** | Mô phỏng Wokwi ESP32, Cảm biến MQ-2, DHT22, Cơ cấu chấp hành (Quạt, Còi, 3 LED) |
+| 1 | **Lục Xuân Thịnh** | **2001230931** | **Trưởng nhóm (Lead) • SV3** | Kiến trúc hệ thống, Tầng 4 (Dashboard Light Theme, RBAC & Telegram Bot), Tích hợp E2E & Tài liệu |
+| 2 | **Châu Phát Lộc** | **2001230469** | **Kỹ sư Tầng 2 & 3 • SV2** | Cấu hình HiveMQ SSL 8883, Middleware Edge-Trigger, Watchdog Timeout >20s & CSV Event Logging |
+| 3 | **Tăng Gia Huy** | **2001230313** | **Kỹ sư Tầng 1 • SV1** | Mô phỏng Wokwi ESP32, Cảm biến MQ-2, DHT22, Lọc N=5, FSM 3 LED, Quạt, Còi & Layout thực tế |
+
+🔗 **Link Mô phỏng Wokwi Công khai (Tầng 1 – Checklist #7):** **[https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825)**
 
 ---
 
-## 🏛️ KIẾN TRÚC 4 TẦNG IOT CHUẨN MỰC
+## 🏛️ KIẾN TRÚC 4 TẦNG IOT HAI CHIỀU CHUẨN MỰC
 
-```text
-+-----------------------------------------------------------------------------------+
-|                           TẦNG 4: APPLICATION / PLATFORM                         |
-|  - Node-RED Dashboard: Đồng hồ đo PPM khói, Biểu đồ nhiệt độ/độ ẩm, Nút bật/tắt quạt|
-|  - Telegram Bot: Tự động gửi tin nhắn báo động cháy khẩn cấp kèm giá trị PPM        |
-+-----------------------------------------▲-----------------------------------------+
-                                          | (HTTP / WebSocket / MQTT)
-+-----------------------------------------▼-----------------------------------------+
-|                        TẦNG 3: MIDDLEWARE / AUTOMATION ENGINE                     |
-|  - Node-RED Flow Engine: Lọc nhiễu, phân tích JSON payload từ ESP32               |
-|  - Automation Rules: Tự động quyết định bật quạt hút & còi hú khi vượt ngưỡng     |
-|  - Event Logging: Lưu vết lịch sử các lần cảnh báo                                |
-+-----------------------------------------▲-----------------------------------------+
-                                          | (MQTT SSL/TLS Port 8883)
-+-----------------------------------------▼-----------------------------------------+
-|                      TẦNG 2: NETWORK / CONNECTIVITY (BROKER)                      |
-|  - Cloud MQTT Broker: HiveMQ Cloud (s1.eu.hivemq.cloud)                           |
-|  - Cổng bảo mật: Port 8883 (Mã hóa SSL/TLS đường truyền an toàn)                  |
-|  - Wi-Fi Gateway: Wokwi-GUEST Virtual Network                                     |
-+-----------------------------------------▲-----------------------------------------+
-                                          | (Publish Telemetry & Subscribe Commands)
-+-----------------------------------------▼-----------------------------------------+
-|                          TẦNG 1: SENSING / PHYSICAL (DEVICE)                      |
-|  - Node điều khiển: ESP32 DevKit V1 (Mô phỏng Wokwi)                             |
-|  - Cảm biến đầu vào: MQ-2 Gas/Smoke Sensor (ADC34) + DHT22 Temp/Hum (GPIO15)      |
-|  - Thiết bị đầu ra: Relay bật quạt hút (GPIO18) + Buzzer hú còi (GPIO19)          |
-|  - Hệ thống chỉ thị 3 LED: Xanh (GPIO25) - Vàng (GPIO26) - Đỏ (GPIO27)             |
-+-----------------------------------------------------------------------------------+
-```
+![Sơ đồ Kiến trúc 4 Tầng IoT Nhóm 12](docs/SoDo_KienTruc_4Tang_Nhom12.png)
+
+* **Tầng 1 – Sensing / Physical (Tăng Gia Huy):** ESP32 DevKit v4 (Wokwi Simulator), cảm biến khói **MQ-2 (ADC34)** dùng bộ lọc trung bình trượt **$N=5$**, cảm biến nhiệt/ẩm **DHT22 (GPIO15)**, Relay bật quạt hút (**GPIO18**), Còi PWM 1000Hz (**GPIO19**), 3 đèn LED chỉ thị (**GPIO25/26/27**).
+* **Tầng 2 – Network / Connectivity (Châu Phát Lộc):** Wi-Fi + **HiveMQ Cloud MQTT Broker** cổng bảo mật **SSL/TLS 8883**, xác thực Username/Password, Client ID tự sinh tránh trùng lặp khi chạy nhiều máy cùng lúc.
+* **Tầng 3 – Middleware / Automation Engine (Châu Phát Lộc):** Luồng Node-RED xử lý logic thực (không chỉ forward thô): **Edge-Trigger 3 ngưỡng** (tránh ghi đè nút bấm thủ công), **Watchdog Timeout > 20s** phát hiện mất kết nối ESP32, và **ghi nhật ký CSV thật** (`logs/event_history.csv`).
+* **Tầng 4 – Application / Platform (Lục Xuân Thịnh):** **Node-RED Dashboard Light Theme** (Gauge, Chart, Trạng thái Online/Offline, Bảng lịch sử sự kiện CSV, 4 nút điều khiển), **Phân quyền Operator / Viewer (RBAC)** và **Bot Telegram `@BaoKhoiCanhBao_bot`** cảnh báo khẩn cấp chống spam 60s.
 
 ---
 
@@ -60,64 +39,50 @@
 - **Username:** `iot_t4_1315`
 - **Password:** `iot_t4_1315`
 
-### 2. Danh mục Topics:
-* **Uplink Telemetry (Định kỳ mỗi 5 giây):** `nhom12/baokhoi/telemetry`
-  ```json
-  {
-    "smoke_ppm": 450,
-    "temp": 32.5,
-    "hum": 65.0,
-    "state": "WARNING",
-    "fan": 1,
-    "buzzer": 0
-  }
-  ```
+### 2. Danh mục 3 Topics chuẩn:
 
-* **Uplink Alert (Bắn tức thời trong 1 giây khi có cháy):** `nhom12/baokhoi/alert`
-  ```json
-  {
-    "alert": "FIRE_ALARM",
-    "smoke_ppm": 780,
-    "temp": 62.0,
-    "hum": 55.0,
-    "state": "DANGER",
-    "msg": "PHAT HIEN NGUY HIEM HOA HOAN! Da tu dong bat coi & quat."
-  }
-  ```
-
-* **Downlink Command (Lệnh điều khiển từ Middleware/Dashboard xuống):** `nhom12/baokhoi/cmd`
-  * Bật quạt hút cưỡng bức: `{"cmd": "FAN_ON"}`
-  * Tắt quạt hút: `{"cmd": "FAN_OFF"}`
-  * Trả về chế độ tự động: `{"cmd": "AUTO"}`
-  * Bật còi hú: `{"buzzer": 1}`
-  * Tắt còi hú: `{"buzzer": 0}`
+| Topic | Hướng truyền | QoS | Chu kỳ / Trigger | Payload JSON mẫu |
+| :--- | :---: | :---: | :--- | :--- |
+| `nhom12/baokhoi/telemetry` | **Uplink** (ESP32 $\rightarrow$ Broker $\rightarrow$ Web) | `0` | Định kỳ mỗi **5s** | `{"smoke_ppm":440,"temp":35.8,"hum":56.0,"state":"WARNING","fan":1,"buzzer":0}` |
+| `nhom12/baokhoi/alert` | **Uplink** (ESP32 $\rightarrow$ Broker $\rightarrow$ Web/Bot) | `1` | **Tức thì (<1s)** khi vào `DANGER` | `{"alert":"FIRE_ALARM","smoke_ppm":780,"temp":62.0,"hum":42.0,"state":"DANGER"}` |
+| `nhom12/baokhoi/cmd` | **Downlink** (Web/Rule $\rightarrow$ Broker $\rightarrow$ ESP32) | `1` | Khi chuyển ngưỡng hoặc bấm nút UI | `{"cmd":"FAN_ON"}`, `{"cmd":"FAN_OFF"}`, `{"cmd":"AUTO"}`, `{"buzzer":1}` |
 
 ---
 
-## 🚦 CÁC NGƯỠNG PHÂN CẤP CẢNH BÁO
+## 🚦 CÁC NGƯỠNG PHÂN CẤP CẢNH BÁO & QUY TẮC TỰ ĐỘNG HÓA
 
-| Cấp độ | Tên trạng thái | Điều kiện kích hoạt | Đèn LED | Trạng thái Quạt hút | Trạng thái Còi Buzzer | Cảnh báo Telegram |
-| :---: | :---: | :--- | :---: | :---: | :---: | :---: |
-| **Mức 1** | **SAFE** | Khói < 300 PPM và Nhiệt độ ≤ 55°C | 🟢 **LED Xanh** | TẮT (OFF) | TẮT (OFF) | Không |
-| **Mức 2** | **WARNING** | 300 ≤ Khói ≤ 600 PPM | 🟡 **LED Vàng** | BẬT (ON) | TẮT (OFF) | Không |
-| **Mức 3** | **DANGER** | Khói > 600 PPM hoặc Nhiệt độ > 55°C | 🔴 **LED Đỏ** | BẬT MAX (ON) | HÚ CÒI (1000Hz) | **Bắn tin khẩn cấp** |
+| Cấp độ | Trạng thái | Điều kiện kích hoạt | LED | Quạt hút | Còi Buzzer | Xử lý Middleware & Cảnh báo |
+| :---: | :---: | :--- | :---: | :---: | :---: | :--- |
+| **Mức 1** | **SAFE** | Khói < 300 PPM và Nhiệt $\le$ 55°C | 🟢 **Xanh** | TẮT (hoặc giữ Manual) | TẮT | Edge-Trigger trả `AUTO` (không đè Manual), ghi `RECOVERY_SAFE` vào CSV |
+| **Mức 2** | **WARNING** | 300 $\le$ Khói $\le$ 600 PPM (Nhiệt $\le$ 55°C) | 🟡 **Vàng** | **TỰ BẬT (ON)** | TẮT | Tản khói sớm tránh báo giả, ghi `WARNING_HIGH_SMOKE` vào CSV |
+| **Mức 3** | **DANGER** | **Khói > 600 PPM** hoặc **Nhiệt > 55°C** | 🔴 **Đỏ** | **BẬT MAX (ON)** | **HÚ 1000Hz** | Ghi đè khẩn cấp `FAN_ON + buzzer:1`, **Telegram báo ngay (<1s)** + CSV |
+| **Bất thường** | **OFFLINE** | Quá **20 giây** không có Telemetry | — | — | — | Watchdog bật badge Đỏ **`OFFLINE TIMEOUT > 20s`**, báo Telegram & ghi CSV |
 
 ---
 
-## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN
+## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN TRÊN MỌI MÁY (CHỈ 1 CLICK SAU `git pull`)
 
-### 1. Khởi chạy Mô phỏng ESP32 (Wokwi):
-1. Cài đặt extension **Wokwi Simulator** trong VS Code.
-2. Mở thư mục `firmware_esp32`.
-3. Bấm `F1` $\rightarrow$ Chọn `Wokwi: Start Simulator` (hoặc mở file `diagram.json`).
-4. Quan sát Terminal: ESP32 kết nối Wi-Fi $\rightarrow$ kết nối HiveMQ SSL thành công $\rightarrow$ bắt đầu phát dữ liệu mỗi 5s.
+Repository đã được cấu hình chạy độc lập đa máy (`nodered_settings.js`, tự kiểm tra thư viện, tự sinh bản chạy cục bộ nếu máy mới chưa có):
 
-### 2. Khởi chạy Middleware & Dashboard (Node-RED):
-1. Khởi động Node-RED: gõ lệnh `node-red` trong terminal.
-2. Truy cập: `http://localhost:1880`.
-3. Import file `middleware_nodered/flows_template.json`.
-4. Bấm **Deploy**.
-5. Mở Dashboard giám sát: `http://localhost:1880/ui`.
+### Bước 1: Pull code mới nhất từ GitHub
+```bash
+git checkout main
+git pull origin main
+```
+
+### Bước 2: Chạy Middleware + Dashboard (Node-RED Tầng 3 & 4)
+* Double-click file **[CHAY_DASHBOARD.bat](CHAY_DASHBOARD.bat)** ở thư mục gốc repo.
+* Script tự kiểm tra `node-red` / `node-red-dashboard`, tự tạo bản chạy cục bộ từ mẫu và kết nối HiveMQ SSL tự động.
+* Truy cập:
+  * **Dashboard giám sát & điều khiển:** `http://localhost:1880/ui`
+  * **Trình xem Flow Node-RED (Tầng 3 & 4):** `http://localhost:1880`
+  * **File lịch sử sự kiện thật:** `logs/event_history.csv`
+
+*(Tùy chọn Telegram thật trên máy cá nhân: vào tab Tầng 4 trên `http://localhost:1880` thay `CHAT_ID` và `<YOUR_TELEGRAM_BOT_TOKEN>` trong file `.local.json` — file này được `.gitignore` ẩn an toàn, không lộ lên Git).*
+
+### Bước 3: Chạy Mô phỏng Thiết bị ESP32 (Tầng 1)
+* **Cách A — Wokwi Web (Chính thức):** Mở trực tiếp link công khai **[https://wokwi.com/projects/480660154780749825](https://wokwi.com/projects/480660154780749825)** rồi bấm nút **Start Simulation (Tam giác xanh)** *(hoặc tạo project từ `firmware_esp32/src/main.cpp`, `firmware_esp32/diagram.json` và `firmware_esp32/libraries.txt`)*.
+* **Cách B — Giả lập ESP32 Python đa máy:** Double-click **[CHAY_GIA_LAP_ESP32.bat](CHAY_GIA_LAP_ESP32.bat)** (tự cài `paho-mqtt` nếu thiếu) và nhấn phím `1`, `2`, `3`, `4`, `p` để thử mọi kịch bản.
 
 ---
 
@@ -125,25 +90,41 @@
 
 ```text
 IoT_HeThongBaoKhoi_Nhom12/
-├── README.md                          # Tài liệu hướng dẫn & kiến trúc tổng thể
-├── .gitignore                         # Bỏ qua các file build PlatformIO rác
-├── docs/                              # Bản vẽ bố trí layout, sơ đồ mạch Wokwi & minh chứng
-│   ├── Ban_ve_Bo_tri_Layout_Thuc_te.jpg
-│   ├── Sodo_Wokwi_3LED_Huy.png
-│   ├── Layout_VatLy_ThucTe.png
-│   └── MinhChung_MQTTX_Tuan4.png
-├── firmware_esp32/                    # Mã nguồn C++ ESP32 Wokwi (Tăng Gia Huy)
+├── README.md                                  # Tài liệu tổng quan, kiến trúc & hướng dẫn chạy đa máy
+├── CHAY_DASHBOARD.bat                         # Khởi chạy Node-RED Tầng 3 + Tầng 4 (Portable đa máy)
+├── CHAY_GIA_LAP_ESP32.bat                     # Khởi chạy giả lập ESP32 MQTT đa máy (auto-install paho-mqtt)
+├── MO_MOHINH_WOKWI.bat                        # Mở nhanh sơ đồ Wokwi trong IDE
+├── esp32_simulator.py                         # Trình mô phỏng ESP32 Python (khớp 100% logic main.cpp)
+├── .gitignore                                 # Bảo vệ token/credential local (*.local.json, *_cred.json)
+├── logs/
+│   └── event_history.csv                      # Nhật ký sự kiện CSV thực tế ghi từ Tầng 3 Middleware
+├── firmware_esp32/                            # TẦNG 1 - Mã nguồn C++ ESP32 Wokwi (Tăng Gia Huy)
 │   ├── platformio.ini
+│   ├── libraries.txt                          # Danh sách 4 thư viện chuẩn khi import lên wokwi.com
 │   ├── wokwi.toml
 │   ├── diagram.json
-│   └── src/
-│       └── main.cpp
-├── middleware_nodered/                # Flow Node-RED & Rules tự động hóa (Châu Phát Lộc)
+│   └── src/main.cpp
+├── middleware_nodered/                        # TẦNG 3 - Bản export độc lập Middleware (Châu Phát Lộc)
 │   ├── README.md
 │   └── flows_template.json
-└── application_dashboard/             # Giao diện Dashboard & Bot Telegram (Lục Xuân Thịnh)
-    └── README.md
+├── application_dashboard/                     # TẦNG 3 + 4 - Flow hợp nhất & cấu hình portable (Thịnh & Lộc)
+│   ├── README.md
+│   ├── nodered_settings.js
+│   └── flows_dashboard_telegram.json
+└── docs/                                      # Tài liệu, Sơ đồ, Kịch bản Demo, Q&A & Minh chứng E2E
+    ├── SoDo_KienTruc_4Tang_Nhom12.png
+    ├── Sodo_Wokwi_3LED_Huy.png
+    ├── Ban_ve_Bo_tri_Layout_Thuc_te.jpg
+    ├── MinhChung_MQTTX_Tuan4.png
+    ├── MinhChung_NodeRED_Flow_Full.png
+    ├── MinhChung_Dashboard_CapNhat.png
+    ├── KICH_BAN_QUAY_VIDEO_DEMO.md
+    ├── HUONG_DAN_VAN_DAP_QA_4_TANG.md
+    ├── BAO_CAO_NGHIEM_THU_CA_NHAN_SV1_HUY.md
+    ├── BAO_CAO_NGHIEM_THU_CA_NHAN_SV2_LOC.md
+    ├── BAO_CAO_NGHIEM_THU_CA_NHAN_SV3_THINH.md
+    └── evidence_thinh/
 ```
 
 ---
-*Bản quyền thuộc về Nhóm 12 - Học phần An toàn và Bảo mật IoT (IT4735) - HUIT 2026.*
+*Bản quyền thuộc về Nhóm 12 - Học phần Internet of Things (IT4735) - HUIT 2026.*

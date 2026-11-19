@@ -1,8 +1,8 @@
-Timestamp,Event_Code,Smoke_PPM,Temperature_C,Humidity_Pct,Fan_State,Buzzer_State,User_Role,Description
-2026-11-19 14:15:10,SYSTEM_ONLINE_SAFE,145.2,28.4,65.2,0,0,System,"He thong khoi dong an toan, broker HiveMQ TLS 8883 connected"
-2026-11-19 14:18:25,WARNING_HIGH_SMOKE,432.8,35.6,58.0,1,0,System,"Rule 2 kich hoat: Khoi vuot 300 PPM, tu dong bat quat hut, coi tat"
-2026-11-19 14:21:40,FIRE_ALARM_URGENT,765.4,48.2,42.5,1,1,System,"Rule 3A kich hoat: Khoi vuot 600 PPM, quat bat, coi hu, ban Telegram khan cap"
-2026-11-19 14:24:12,MANUAL_FAN_ON,760.0,47.8,43.0,1,1,Operator,"Dieu khien tay: Operator bam Bat Quat cuong buc (Manual Override)"
-2026-11-19 14:26:05,AUTH_DENIED_VIEWER,758.2,47.5,43.2,1,1,Viewer,"Bao mat RBAC: Tu choi lenh dieu khien do nguoi dung chi co quyen Viewer"
-2026-11-19 14:28:30,SET_AUTO_MODE,210.5,29.1,64.0,0,0,Operator,"Chuyen che do: Operator tra quyen dieu khien ve Tu dong (AUTO)"
-2026-11-19 14:32:00,OFFLINE_TIMEOUT,0.0,0.0,0.0,0,0,System,"Watchdog Timeout: ESP32 mat ket noi > 20s, he thong chuyen sang OFFLINE"
+﻿ThoiGian,SuKien,Nguon,Khoi_PPM,NhietDo_C,DoAm_Pct,HanhDong
+"16:29:46 14/11/2026",SYSTEM_ONLINE_SAFE,"Rule Engine",140,28,64,"Kết nối ổn định ở mức An toàn (SAFE)"
+"16:29:46 14/11/2026",FIRE_ALARM_URGENT,"ESP32 Alert Topic",780,60.5,44,"Nhận gói Alert khẩn cấp (<1s) -> Bắn Telegram"
+"16:29:47 14/11/2026",WARNING_HIGH_SMOKE,"Rule Engine",445,36.2,55,"Khói tăng -> Tự bật quạt tản khói (AUTO)"
+"16:29:51 14/11/2026",MANUAL_FAN_ON,"Dashboard RBAC",0,0,0,"Người dùng BẬT Quạt thủ công (Giữ Override)"
+"16:29:53 14/11/2026",AUTH_DENIED_VIEWER,"Dashboard RBAC",0,0,0,"Từ chối thao tác ở quyền Viewer (Chỉ xem)"
+"16:29:55 14/11/2026",SET_AUTO_MODE,"Dashboard RBAC",0,0,0,"Người dùng trả về Chế độ Tự động (AUTO)"
+"16:30:07 14/11/2026",OFFLINE_TIMEOUT,"Watchdog >20s",0,0,0,"Cảnh báo mất kết nối ESP32 quá 20 giây"

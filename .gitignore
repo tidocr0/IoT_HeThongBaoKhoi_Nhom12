@@ -35,3 +35,7 @@ __pycache__/
 *.local*.json
 *_cred.json
 
+# Python cache
+__pycache__/
+*.pyc
+
