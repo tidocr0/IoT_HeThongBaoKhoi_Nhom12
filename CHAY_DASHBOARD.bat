@@ -9,6 +9,8 @@ echo    Truong nhom: Luc Xuan Thinh - MSSV: 2001230931
 echo =====================================================================
 echo.
 
+set "PATH=%APPDATA%\npm;%PATH%"
+
 where node-red >nul 2>nul
 if errorlevel 1 (
     echo [!] May nay chua cai Node-RED. Dang kiem tra Node.js / npm...
