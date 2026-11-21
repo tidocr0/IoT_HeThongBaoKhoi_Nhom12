@@ -42,10 +42,10 @@ WiFiClientSecure espClient;
 PubSubClient client(espClient);
 
 // =========================================================
-// [3] BỘ LỌC TRUNG BÌNH TRƯỢT (MOVING AVERAGE FILTER N=5)
+// [3] BỘ LỌC TRUNG BÌNH TRƯỢT (MOVING AVERAGE FILTER N=10)
 // =========================================================
-#define NUM_SAMPLES 5
-int smokeSamples[NUM_SAMPLES];
+#define SMOKE_SAMPLES 10
+int smokeSamples[SMOKE_SAMPLES];
 int sampleIndex = 0;
 long smokeTotal = 0;
 
@@ -77,9 +77,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     message += (char)payload[i];
   }
 
-  Serial.println("\n=============================================");
-  Serial.printf("[MQTT DOWNLINK] Nhan lenh tu Topic [%s]:\n", topic);
-  Serial.println(message);
+  Serial.println("\r\n=============================================");
+  Serial.printf("[MQTT DOWNLINK] Nhan lenh dieu khien tu xa: %s\r\n", message.c_str());
 
   if (String(topic) == topic_cmd) {
     JsonDocument doc;
@@ -91,7 +90,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       return;
     }
 
-    // 1. Xử lý lệnh quạt (cmd)
+    // 1. Xử lý lệnh quạt và còi từ trường "cmd"
     if (!doc["cmd"].isNull()) {
       const char* cmd = doc["cmd"];
       if (strcmp(cmd, "FAN_ON") == 0) {
@@ -104,6 +103,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
         fanState = false;
         digitalWrite(RELAY_PIN, LOW);
         Serial.println(">>> [CMD THUC THI] TAT QUAT HUT (FAN_OFF)");
+      } else if (strcmp(cmd, "BUZZER_ON") == 0) {
+        manualBuzzerOverride = true;
+        buzzerState = true;
+        tone(BUZZER_PIN, 1000);
+        Serial.println(">>> [CMD THUC THI] BAT COI HU (BUZZER_ON)");
+      } else if (strcmp(cmd, "BUZZER_OFF") == 0) {
+        manualBuzzerOverride = true;
+        buzzerState = false;
+        noTone(BUZZER_PIN);
+        Serial.println(">>> [CMD THUC THI] TAT COI HU (BUZZER_OFF)");
       } else if (strcmp(cmd, "AUTO") == 0) {
         manualFanOverride = false;
         manualBuzzerOverride = false;
@@ -111,7 +120,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       }
     }
 
-    // 2. Xử lý lệnh còi (buzzer: 0 hoặc 1)
+    // 2. Xử lý lệnh còi nếu gửi dạng số (buzzer: 0 hoặc 1)
     if (!doc["buzzer"].isNull()) {
       int bzCmd = doc["buzzer"];
       if (bzCmd == 1) {
@@ -146,9 +155,9 @@ void reconnect() {
     if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
       Serial.println(" -> THANH CONG!");
       client.subscribe(topic_cmd);
-      Serial.printf("[MQTT] Da subscribe topic dieu khien: %s\n", topic_cmd);
+      Serial.printf("[MQTT] Da subscribe topic dieu khien: %s\r\n", topic_cmd);
     } else {
-      Serial.printf(" That bai! Ma loi rc=%d (Thu lai sau 5s)\n", client.state());
+      Serial.printf(" That bai! Ma loi rc=%d (Thu lai sau 5s)\r\n", client.state());
     }
   }
 }
@@ -171,15 +180,15 @@ void publishAlert(int smokePPM, float temp, float hum) {
   serializeJson(doc, buffer);
 
   client.publish(topic_alert, buffer);
-  Serial.println("\n🚨 [ALERT] DA BAN GOI TIN KHAN CAP LEN TOPIC: nhom12/baokhoi/alert");
-  Serial.printf("🚨 Noi dung: %s\n\n", buffer);
+  Serial.println("\r\n🚨 [ALERT] DA BAN GOI TIN KHAN CAP LEN TOPIC: nhom12/baokhoi/alert");
+  Serial.printf("🚨 Noi dung: %s\r\n\r\n", buffer);
 }
 
 // =========================================================
 // [8] CÁC HÀM XỬ LÝ PHẦN CỨNG & LOGIC FSM - TĂNG GIA HUY
 // =========================================================
 
-// 1. Hàm đọc và lọc khói MQ-2 (Lọc trung bình trượt 5 mẫu để chống nhiễu ảo)
+// 1. Hàm đọc và lọc khói MQ-2 (Lọc trung bình trượt 10 mẫu để chống nhiễu ảo)
 int docVaLocKhoi() {
   int rawADC = analogRead(MQ2_PIN); // Đọc điện áp thô từ chân 34
 
@@ -187,10 +196,10 @@ int docVaLocKhoi() {
   smokeTotal = smokeTotal - smokeSamples[sampleIndex];
   smokeSamples[sampleIndex] = rawADC;
   smokeTotal = smokeTotal + rawADC;
-  sampleIndex = (sampleIndex + 1) % NUM_SAMPLES; // Quay vòng chỉ số mảng (0->4)
+  sampleIndex = (sampleIndex + 1) % SMOKE_SAMPLES; // Quay vòng chỉ số mảng (0->9)
 
   // Tính trung bình cộng và đổi sang thang đo chuẩn 0 - 1000 PPM
-  int avgADC = smokeTotal / NUM_SAMPLES;
+  int avgADC = smokeTotal / SMOKE_SAMPLES;
   int ppm = map(avgADC, 0, 4095, 0, 1000);
   if (ppm < 0) ppm = 0;
   if (ppm > 1000) ppm = 1000;
@@ -199,10 +208,22 @@ int docVaLocKhoi() {
 
 // 2. Hàm bật đèn LED chỉ thị theo trạng thái (Xanh / Vàng / Đỏ)
 void capNhatDenLED(SystemState state) {
-  // Trạng thái nào thì đèn đó sáng, 2 đèn còn lại tắt
-  digitalWrite(LED_GREEN_PIN,  (state == SAFE)    ? HIGH : LOW);
-  digitalWrite(LED_YELLOW_PIN, (state == WARNING) ? HIGH : LOW);
-  digitalWrite(LED_RED_PIN,    (state == DANGER)  ? HIGH : LOW);
+  if (state == SAFE) {
+    digitalWrite(LED_GREEN_PIN,  HIGH);
+    digitalWrite(LED_YELLOW_PIN, LOW);
+    digitalWrite(LED_RED_PIN,    LOW);
+  } else if (state == WARNING) {
+    digitalWrite(LED_GREEN_PIN,  LOW);
+    digitalWrite(LED_YELLOW_PIN, HIGH);
+    digitalWrite(LED_RED_PIN,    LOW);
+  } else if (state == DANGER) {
+    digitalWrite(LED_GREEN_PIN,  LOW);
+    digitalWrite(LED_YELLOW_PIN, LOW);
+    // Nhấp nháy LED Đỏ báo động khẩn cấp
+    static bool redBlink = false;
+    redBlink = !redBlink;
+    digitalWrite(LED_RED_PIN, redBlink ? HIGH : LOW);
+  }
 }
 
 // 3. Hàm điều khiển Quạt hút và Còi báo động theo logic FSM
@@ -258,7 +279,7 @@ void setup() {
   digitalWrite(RELAY_PIN, LOW);
   capNhatDenLED(SAFE); // Khởi động ban đầu: sáng LED Xanh
 
-  for (int i = 0; i < NUM_SAMPLES; i++) {
+  for (int i = 0; i < SMOKE_SAMPLES; i++) {
     smokeSamples[i] = 0;
   }
 
@@ -363,20 +384,21 @@ void loop() {
 
     if (client.connected()) {
       client.publish(topic_telemetry, telemetryPayload);
-      Serial.println("\n[MQTT UPLINK] Gui goi tin dinh ky (5s):");
-      Serial.printf("Topic  : %s\n", topic_telemetry);
-      Serial.printf("Payload: %s\n", telemetryPayload);
+      Serial.println("\r\n=============================================================");
+      Serial.println("[MQTT UPLINK] Gui goi tin dinh ky (5s):");
+      Serial.printf("Topic  : %s\r\n", topic_telemetry);
+      Serial.printf("Payload: %s\r\n", telemetryPayload);
     } else {
       Serial.println("[MQTT] Chua ket noi duoc Broker HiveMQ, bo qua lan gui nay.");
     }
 
     Serial.println("-------------------------------------------------------------");
-    Serial.printf("[THONG SO] PPM: %4d | Nhiet do: %4.1f *C | Do am: %4.1f %%\n", globalSmokePPM, globalTemp, globalHum);
-    Serial.printf("[HE THONG] Muc: %-7s | Quat: %d (%s) | Coi: %d (%s) | LED: %s\n",
+    Serial.printf("[THONG SO] PPM: %4d | Nhiet do: %4.1f *C | Do am: %4.1f %%\r\n", globalSmokePPM, globalTemp, globalHum);
+    Serial.printf("[HE THONG] Muc: %-7s | Quat: %d (%s) | Coi: %d (%s) | LED: %s\r\n",
                   globalStateStr.c_str(),
                   fanState ? 1 : 0, manualFanOverride ? "Manual" : "Auto",
                   buzzerState ? 1 : 0, manualBuzzerOverride ? "Manual" : "Auto",
                   (currentState == SAFE) ? "XANH" : ((currentState == WARNING) ? "VANG" : "DO"));
-    Serial.println("-------------------------------------------------------------");
+    Serial.println("=============================================================");
   }
 }

@@ -76,17 +76,20 @@
 1. **Giao diện Dashboard & Bảng CSV Log khi có lỗi MẤT KẾT NỐI (OFFLINE TIMEOUT > 20s):**  
    ![Dashboard Offline Timeout](MinhChung_Dashboard_Offline_Timeout_SV2.png)
 
-2. **Giao diện Node-RED Flow Tầng 3 kết nối HiveMQ Cloud SSL 8883 (`connected`):**  
+2. **Giao diện Dashboard khi thiết bị tự động kết nối lại thành công (`DEVICE_RECONNECTED`):**  
+   ![Dashboard Online Safe](MinhChung_Dashboard_Online_Safe_SV2.png)
+
+3. **Giao diện Node-RED Flow Tầng 3 kết nối HiveMQ Cloud SSL 8883 (`connected`):**  
    ![Minh chứng Node-RED Flow Connected](MinhChung_NodeRED_Flow_Connected_SV2.png)
 
-3. **Minh chứng Kết nối HiveMQ Broker SSL Port 8883 qua MQTTX:**  
+4. **Minh chứng Kết nối HiveMQ Broker SSL Port 8883 qua MQTTX:**  
    ![Minh chứng MQTTX](MinhChung_MQTTX_Tuan4.png)
 
-4. **Sơ đồ Kiến trúc 4 Tầng IoT Nhóm 12:**  
+5. **Sơ đồ Kiến trúc 4 Tầng IoT Nhóm 12:**  
    ![Sơ đồ Kiến trúc 4 Tầng](SoDo_KienTruc_4Tang_Nhom12.png)
 
 ---
 
 ### KẾT LUẬN TIẾN ĐỘ CỦA SV2 (CHÂU PHÁT LỘC):
 * Toàn bộ các hạng mục Tầng 2 (Network HiveMQ SSL 8883) & Tầng 3 (Middleware Engine, Edge-Trigger, Anti-Junk Filter, Watchdog Timeout > 20s, CSV Log 7 mã sự kiện) đã **HOÀN THÀNH, KIỂM THỬ THỰC TẾ 100% ĐẠT CHUẨN RUBRIC SYLLABUS**.
-* Đã sẵn sàng thuyết trình và trả lời vấn đáp kỹ thuật chuyên sâu cả 4 tầng cùng Nhóm 12 ([HUONG_DAN_VAN_DAP_QA_4_TANG.md](HUONG_DAN_VAN_DAP_QA_4_TANG.md)).
+* Toàn bộ số liệu đo đạc và kết quả kiểm thử chéo đã được tổng hợp đầy đủ tại báo cáo [BAO_CAO_KIEM_THU_E2E_TUAN_7_8.md](BAO_CAO_KIEM_THU_E2E_TUAN_7_8.md).

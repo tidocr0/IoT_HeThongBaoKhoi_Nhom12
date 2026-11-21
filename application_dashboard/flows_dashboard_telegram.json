@@ -19,7 +19,7 @@
     "rap": true,
     "rh": 0,
     "inputs": 0,
-    "x": 150,
+    "x": 140,
     "y": 100,
     "wires": [
       [
@@ -88,7 +88,7 @@
     "correl": "",
     "expiry": "",
     "broker": "mqtt_broker_shared",
-    "x": 800,
+    "x": 910,
     "y": 80,
     "wires": []
   },

@@ -111,15 +111,20 @@ IoT_HeThongBaoKhoi_Nhom12/
 │   ├── README.md
 │   ├── nodered_settings.js
 │   └── flows_dashboard_telegram.json
-└── docs/                                      # Tài liệu, Sơ đồ, Kịch bản Demo, Q&A & Minh chứng E2E
+└── docs/                                      # Tài liệu kỹ thuật, Sơ đồ & Minh chứng Kiểm thử E2E
     ├── SoDo_KienTruc_4Tang_Nhom12.png
     ├── Sodo_Wokwi_3LED_Huy.png
     ├── Ban_ve_Bo_tri_Layout_Thuc_te.jpg
     ├── MinhChung_MQTTX_Tuan4.png
     ├── MinhChung_NodeRED_Flow_Full.png
+    ├── MinhChung_NodeRED_Flow_Connected_SV2.png
     ├── MinhChung_Dashboard_CapNhat.png
-    ├── KICH_BAN_QUAY_VIDEO_DEMO.md
-    ├── HUONG_DAN_VAN_DAP_QA_4_TANG.md
+    ├── MinhChung_Dashboard_Offline_Timeout_SV2.png
+    ├── MinhChung_Dashboard_Online_Safe_SV2.png
+    ├── MinhChung_Downlink_Manual_FanOn_SV1.png
+    ├── MinhChung_Downlink_Manual_FanOff_SV1.png
+    ├── MinhChung_Wokwi_Downlink_Manual_SV1.png
+    ├── BAO_CAO_KIEM_THU_E2E_TUAN_7_8.md
     ├── BAO_CAO_NGHIEM_THU_CA_NHAN_SV1_HUY.md
     ├── BAO_CAO_NGHIEM_THU_CA_NHAN_SV2_LOC.md
     ├── BAO_CAO_NGHIEM_THU_CA_NHAN_SV3_THINH.md
